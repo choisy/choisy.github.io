@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Spatial on R receipes</title>
+    <link>/categories/spatial/</link>
+    <description>Recent content in Spatial on R receipes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 22 Jan 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/spatial/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Spatial buffers</title>
+      <link>/2018/01/22/spatial-buffers/</link>
+      <pubDate>Mon, 22 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/01/22/spatial-buffers/</guid>
+      <description>Packages needed Install these packages if they are not already installed on your system, then load them:
+&amp;gt; library(sp) # plot, points, spsample &amp;gt; library(purrr) # map2 &amp;gt; library(dplyr) # %&amp;gt;%, mutate &amp;gt; library(rgeos) # gIntersection &amp;gt; library(raster) # plot, buffer &amp;gt; library(geosphere) # areaPolygon We can compute statistics in buffer zones around specific points. For that we need spatial data in raster format. These data can be qualitative (e.g. land cover) or quantitative (e.</description>
+    </item>
+    
+  </channel>
+</rss>

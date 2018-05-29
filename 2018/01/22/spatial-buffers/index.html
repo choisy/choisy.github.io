@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.41" />
+
+
+<title>Spatial buffers - R receipes</title>
+<meta property="og:title" content="Spatial buffers - R receipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">7 min read</span>
+    
+
+    <h1 class="article-title">Spatial buffers</h1>
+
+    
+    <span class="article-date">2018/01/22</span>
+    
+
+    <div class="article-content">
+      <div id="packages-needed" class="section level2">
+<h2>Packages needed</h2>
+<p>Install these packages if they are not already installed on your system, then load them:</p>
+<pre class="r"><code>&gt; library(sp)        # plot, points, spsample
+&gt; library(purrr)     # map2
+&gt; library(dplyr)     # %&gt;%, mutate
+&gt; library(rgeos)     # gIntersection
+&gt; library(raster)    # plot, buffer
+&gt; library(geosphere) # areaPolygon</code></pre>
+<p>We can compute statistics in buffer zones around specific points. For that we need spatial data in raster format. These data can be qualitative (e.g. land cover) or quantitative (e.g elevation or population size).</p>
+</div>
+<div id="defining-buffers-zone-and-their-areas" class="section level2">
+<h2>Defining buffers zone and their areas</h2>
+<p>Let’s choose 10 points (cases) at random inside the polygon of Vietnam. First the polygon of Vietnam:</p>
+<pre class="r"><code>&gt; # devtools::install_github(&quot;choisy/gadmVN&quot;)
+&gt; # devtools::install_github(&quot;choisy/sptools&quot;)
+&gt; vn &lt;- gadmVN::gadm(level = &quot;country&quot;) %&gt;% sptools::largest_polygons()</code></pre>
+<p>Let’s see that polygon:</p>
+<pre class="r"><code>&gt; plot(vn)</code></pre>
+<p><img src="/post/2018-01-22-spatial-buffers_files/figure-html/unnamed-chunk-4-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>Let’s now choose 10 random locations inside the polygon of Vietnam:</p>
+<pre class="r"><code>&gt; set.seed(30101976) # for the purpose of the reproducibility here only
+&gt; nb &lt;- 10
+&gt; cases &lt;- spsample(vn, nb, &quot;random&quot;)</code></pre>
+<p>Let’s see that:</p>
+<pre class="r"><code>&gt; plot(vn)
+&gt; points(cases, pch = 3, col = &quot;red&quot;)</code></pre>
+<p><img src="/post/2018-01-22-spatial-buffers_files/figure-html/unnamed-chunk-6-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>Let’s now define buffer zones around these points with a radius of 20 km:</p>
+<pre class="r"><code>&gt; radius &lt;- 20000 # in meters
+&gt; buffers &lt;- buffer(cases, radius, dissolve = FALSE)</code></pre>
+<p>Let’s see that:</p>
+<pre class="r"><code>&gt; plot(vn, col = adjustcolor(&quot;blue&quot;, .05))
+&gt; plot(buffers, col = adjustcolor(&quot;red&quot;, .1), add = TRUE)</code></pre>
+<p><img src="/post/2018-01-22-spatial-buffers_files/figure-html/unnamed-chunk-8-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>Note that the 8th of these buffers is crossed the border of Vietnam:</p>
+<pre class="r"><code>&gt; plot(buffers[8], col = adjustcolor(&quot;red&quot;, .05))
+&gt; plot(vn, col = adjustcolor(&quot;blue&quot;, .1), add = TRUE)
+&gt; box(bty = &quot;o&quot;)</code></pre>
+<p><img src="/post/2018-01-22-spatial-buffers_files/figure-html/unnamed-chunk-9-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>For that reason, we first need to compute the intersection of the buffers with the polygon of Vietnam before we can compute the areas of these buffers:</p>
+<pre class="r"><code>&gt; (areas &lt;- sapply(seq_along(buffers),
++                  function(x) areaPolygon(gIntersection(vn, buffers[x])) / 10^6))
+ [1] 1256.572 1256.572 1256.572 1256.572 1256.572 1256.572 1256.572
+ [8] 1143.787 1256.572 1256.572</code></pre>
+<p>Note that the area of the 8th buffer is slightly less that the areas of the other buffers.</p>
+</div>
+<div id="quantitative-statistics" class="section level2">
+<h2>Quantitative statistics</h2>
+<p>Let’s start we a quantitative example, looking at population size Vietnam:</p>
+<pre class="r"><code>&gt; # devtools::install_github(&quot;choisy/worldpopVN&quot;)
+&gt; wpvn &lt;- worldpopVN::getpop(2015)</code></pre>
+<p>The population size for Vietnam looks like this:</p>
+<pre class="r"><code>&gt; plot(wpvn)</code></pre>
+<p><img src="/post/2018-01-22-spatial-buffers_files/figure-html/unnamed-chunk-12-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>Let’s extract the values inside each buffers and sum them:</p>
+<pre class="r"><code>&gt; (popsizes &lt;- raster::extract(wpvn, cases, buffer = radius) %&gt;% sapply(sum, na.rm = TRUE))
+ [1] 107678.43  26090.01 117261.68 431477.35  89729.25 460979.95 337982.83
+ [8]  78877.60 348799.43 510036.65</code></pre>
+<p>To get the population density (/ km2) in this buffer zones, we just need to divide this values by the areas:</p>
+<pre class="r"><code>&gt; (densities &lt;- popsizes / areas)
+ [1]  85.69220  20.76284  93.31870 343.37648  71.40795 366.85512 268.97207
+ [8]  68.96180 277.58009 405.89521</code></pre>
+<div id="a-pipeline-version" class="section level3">
+<h3>A pipeline version</h3>
+<p>Let’s describe here a pipeline version of the code above. Let’s imagine that we start from a matrix of coordinates:</p>
+<pre class="r"><code>&gt; (coord_mat &lt;- coordinates(cases))
+             x         y
+ [1,] 105.3766 19.604040
+ [2,] 102.5897 22.341166
+ [3,] 106.8751 21.394561
+ [4,] 105.1687  9.175559
+ [5,] 105.1582 19.513076
+ [6,] 105.7741 20.287876
+ [7,] 105.7781 18.250804
+ [8,] 104.6568 22.703839
+ [9,] 105.1182  9.350618
+[10,] 105.4021  9.883708</code></pre>
+<p>The pipeline below used the above-defined objects <code>radius</code>, <code>vn</code> and <code>wpvn</code>, and also the projection <code>llCRS</code> defined below:</p>
+<pre class="r"><code>&gt; llCRS &lt;- CRS(&quot;+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0&quot;)</code></pre>
+<p>Let’s now then define 2 utilitary functions:</p>
+<pre class="r"><code>&gt; calc_area &lt;- function(sp, radius, polygon) {
++   sp %&gt;%
++     buffer(radius) %&gt;%
++     gIntersection(polygon) %&gt;%
++     areaPolygon()
++ }</code></pre>
+<p>and</p>
+<pre class="r"><code>&gt; calc_popsize &lt;- function(sp, radius, raster) {
++   raster::extract(raster, sp, buffer = radius) %&gt;% sapply(sum, na.rm = TRUE)
++ }</code></pre>
+<p>Then, the pipeline goes:</p>
+<pre class="r"><code>&gt; coord_mat %&gt;%
++   data.frame %&gt;% 
++   mutate(sp      = map2(x, y, data.frame) %&gt;% lapply(. %&gt;% SpatialPoints(llCRS)),
++          area    = sapply(sp, calc_area, radius, vn),
++          popsize = sapply(sp, calc_popsize, radius, wpvn),
++          density = popsize / area) %&gt;%
++   dplyr::select(-sp)
+          x         y       area   popsize      density
+1  105.3766 19.604040 1256572229 107678.43 8.569220e-05
+2  102.5897 22.341166 1256572229  26090.01 2.076284e-05
+3  106.8751 21.394561 1256572230 117261.68 9.331870e-05
+4  105.1687  9.175559 1256572234 431477.35 3.433765e-04
+5  105.1582 19.513076 1256572229  89729.25 7.140795e-05
+6  105.7741 20.287876 1256572228 460979.95 3.668551e-04
+7  105.7781 18.250804 1256572233 337982.83 2.689721e-04
+8  104.6568 22.703839 1143786839  78877.60 6.896180e-05
+9  105.1182  9.350618 1256572226 348799.43 2.775801e-04
+10 105.4021  9.883708 1256572229 510036.65 4.058952e-04</code></pre>
+</div>
+<div id="a-function-version" class="section level3">
+<h3>A function version</h3>
+<p>We can put the above pipe into a function:</p>
+<pre class="r"><code>&gt; buffering &lt;- function(coord, radius, rast, polyg) {
++   require(sp)
++   require(purrr)
++   require(rgeos)
++   require(dplyr)
++   require(raster)
++   require(geosphere)
++   stopifnot(proj4string(rast) == proj4string(polyg))
++   coord %&gt;%
++   data.frame %&gt;% 
++       mutate(sp      = map2(x, y, data.frame) %&gt;% lapply(. %&gt;% SpatialPoints(llCRS)),
++          area    = sapply(sp, calc_area, radius, vn),
++          popsize = sapply(sp, calc_popsize, radius, wpvn),
++          density = popsize / area) %&gt;%
++   dplyr::select(-sp)
++ }</code></pre>
+<p>Using that function:</p>
+<pre class="r"><code>&gt; buffering(coord_mat, radius, wpvn, vn)
+          x         y       area   popsize      density
+1  105.3766 19.604040 1256572229 107678.43 8.569220e-05
+2  102.5897 22.341166 1256572229  26090.01 2.076284e-05
+3  106.8751 21.394561 1256572230 117261.68 9.331870e-05
+4  105.1687  9.175559 1256572234 431477.35 3.433765e-04
+5  105.1582 19.513076 1256572229  89729.25 7.140795e-05
+6  105.7741 20.287876 1256572228 460979.95 3.668551e-04
+7  105.7781 18.250804 1256572233 337982.83 2.689721e-04
+8  104.6568 22.703839 1143786839  78877.60 6.896180e-05
+9  105.1182  9.350618 1256572226 348799.43 2.775801e-04
+10 105.4021  9.883708 1256572229 510036.65 4.058952e-04</code></pre>
+</div>
+</div>
+<div id="qualitative-statistics" class="section level2">
+<h2>Qualitative statistics</h2>
+<p>Let’s see now how it works with qualitative variables such as land cover.</p>
+<pre class="r"><code>&gt; gcvn &lt;- globcoverVN::getgcvn()</code></pre>
+<p>The plot of the land cover with the buffers:</p>
+<pre class="r"><code>&gt; plot(gcvn)
+&gt; plot(buffers, add = TRUE)</code></pre>
+<p><img src="/post/2018-01-22-spatial-buffers_files/figure-html/unnamed-chunk-23-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>To see the legend:</p>
+<pre class="r"><code>&gt; globcoverVN::show_legend(gcvn)
+ 11 : Post-flooding or irrigated croplands (or aquatic)
+ 14 : Rainfed croplands
+ 20 : Mosaic cropland (50-70%) / vegetation (grassland/shrubland/forest) (20-50%)
+ 30 : Mosaic vegetation (grassland/shrubland/forest) (50-70%) / cropland (20-50%)
+ 40 : Closed to open (&gt;15%) broadleaved evergreen or semi-deciduous forest (&gt;5m)
+ 50 : Closed (&gt;40%) broadleaved deciduous forest (&gt;5m)
+ 60 : Open (15-40%) broadleaved deciduous forest/woodland (&gt;5m)
+ 70 : Closed (&gt;40%) needleleaved evergreen forest (&gt;5m)
+100 : Closed to open (&gt;15%) mixed broadleaved and needleleaved forest (&gt;5m)
+110 : Mosaic forest or shrubland (50-70%) / grassland (20-50%)
+120 : Mosaic grassland (50-70%) / forest or shrubland (20-50%)
+130 : Closed to open (&gt;15%) (broadleaved or needleleaved, evergreen or deciduous) shrubland (&lt;5m)
+140 : Closed to open (&gt;15%) herbaceous vegetation (grassland, savannas or lichens/mosses)
+150 : Sparse (&lt;15%) vegetation
+160 : Closed to open (&gt;15%) broadleaved forest regularly flooded (semi-permanently or temporarily) - Fresh or brackish water
+170 : Closed (&gt;40%) broadleaved forest or shrubland permanently flooded - Saline or brackish water
+190 : Artificial surfaces and associated areas (Urban areas &gt;50%)
+200 : Bare areas
+210 : Water bodies
+220 : Permanent snow and ice</code></pre>
+<p>Magnifying the 8th buffer:</p>
+<pre class="r"><code>&gt; plot(buffers[8])
+&gt; plot(gcvn, axes = FALSE, legend = FALSE, add = TRUE)
+&gt; plot(buffers[8], add = TRUE)
+&gt; plot(vn, add = TRUE)
+&gt; box(bty = &quot;o&quot;)</code></pre>
+<p><img src="/post/2018-01-22-spatial-buffers_files/figure-html/unnamed-chunk-25-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>We can calculate the percentage of land cover for each buffer by using this function:</p>
+<pre class="r"><code>&gt; calc_globcov &lt;- function(sp, radius, raster) {
++   raster::extract(raster, sp, buffer = radius) %&gt;% 
++     table() %&gt;% 
++     (function(x) lapply(list(I, sum), function(f) f(x))) %&gt;%
++     do.call(`/`, .)
++ }</code></pre>
+<p>like this:</p>
+<pre class="r"><code>&gt; coord_mat %&gt;% 
++   data.frame() %$% 
++   map2(x, y, data.frame) %&gt;%
++   lapply(. %&gt;% SpatialPoints(llCRS)) %&gt;% 
++   lapply(calc_globcov, radius, gcvn) %&gt;% 
++   do.call(dplyr::bind_rows, .) %&gt;% 
++   mutate_all(funs(ifelse(is.na(.), 0, .))) %&gt;%
++   bind_cols(data.frame(coord_mat), .)
+          x         y           11          14          20          30
+1  105.3766 19.604040 4.919085e-03 0.151778712 0.117915449 0.112497327
+2  102.5897 22.341166 7.005254e-05 0.013450088 0.018704028 0.137933450
+3  106.8751 21.394561 1.409145e-04 0.043331220 0.035510463 0.113577115
+4  105.1687  9.175559 1.401806e-01 0.353362693 0.110920355 0.042024334
+5  105.1582 19.513076 6.563459e-03 0.072269387 0.095312834 0.136405793
+6  105.7741 20.287876 1.774182e-03 0.315662480 0.147044213 0.176424668
+7  105.7781 18.250804 5.657393e-02 0.137085759 0.387966358 0.109553591
+8  104.6568 22.703839 4.442395e-02 0.234186458 0.059026977 0.187303051
+9  105.1182  9.350618 3.326118e-01 0.282078077 0.050832276 0.020526984
+10 105.4021  9.883708 9.902377e-01 0.001341382 0.001192339 0.001490424
+             40           60          70         100          110
+1  0.1982604976 0.0015684038 0.006344906 0.052612818 0.0003564554
+2  0.2245884413 0.0274605954 0.038178634 0.004483363 0.0000000000
+3  0.3569365180 0.0000000000 0.011836821 0.072359614 0.0000000000
+4  0.0007464358 0.0002985743 0.032693887 0.193998656 0.0051504068
+5  0.2074623671 0.0019975744 0.006706143 0.064493116 0.0010701291
+6  0.1425732737 0.0051096445 0.015754737 0.019799872 0.0003548364
+7  0.2452016390 0.0000000000 0.009920207 0.006972899 0.0055351880
+8  0.1382676197 0.0024594574 0.117900238 0.001383445 0.0056106372
+9  0.0035082481 0.0010450101 0.047622602 0.205269837 0.0063447040
+10 0.0004471272 0.0005216484 0.000000000 0.000000000 0.0000000000
+           130         140          210          50          120
+1  0.343052684 0.003635845 0.0070578171 0.000000000 0.0000000000
+2  0.520490368 0.000000000 0.0000000000 0.014360771 0.0002802102
+3  0.366095963 0.000000000 0.0002113718 0.000000000 0.0000000000
+4  0.012316190 0.086437262 0.0000000000 0.002388594 0.0194819736
+5  0.407576514 0.000000000 0.0001426839 0.000000000 0.0000000000
+6  0.151444184 0.015754737 0.0064580229 0.000000000 0.0009225747
+7  0.013802027 0.007691755 0.0196966429 0.000000000 0.0000000000
+8  0.193912843 0.003228038 0.0000000000 0.011144416 0.0007685804
+9  0.014032992 0.013734418 0.0000000000 0.001866089 0.0205269837
+10 0.004471272 0.000000000 0.0002980848 0.000000000 0.0000000000
+            200          150
+1  0.0000000000 0.0000000000
+2  0.0000000000 0.0000000000
+3  0.0000000000 0.0000000000
+4  0.0000000000 0.0000000000
+5  0.0000000000 0.0000000000
+6  0.0009225747 0.0000000000
+7  0.0000000000 0.0000000000
+8  0.0002305741 0.0001537161
+9  0.0000000000 0.0000000000
+10 0.0000000000 0.0000000000</code></pre>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

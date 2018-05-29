@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.41" />
+
+
+<title>System language - R receipes</title>
+<meta property="og:title" content="System language - R receipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">1 min read</span>
+    
+
+    <h1 class="article-title">System language</h1>
+
+    
+    <span class="article-date">2018/05/14</span>
+    
+
+    <div class="article-content">
+      <p>You can change the language in which R is talking to the user from the definition of the <code>LANG</code> environment variable:</p>
+<pre class="r"><code>&gt; Sys.getenv(&quot;LANG&quot;)
+[1] &quot;fr_FR.UTF-8&quot;
+&gt; log(-3)
+Warning in log(-3): production de NaN
+[1] NaN</code></pre>
+<p>Changing to English:</p>
+<pre class="r"><code>&gt; Sys.setenv(LANG = &quot;en_US.UTF-8&quot;)
+&gt; log(-3)
+Warning in log(-3): NaNs produced
+[1] NaN</code></pre>
+<p>and back to French:</p>
+<pre class="r"><code>&gt; Sys.setenv(LANG = &quot;fr_FR.UTF-8&quot;)
+&gt; log(-3)
+Warning in log(-3): production de NaN
+[1] NaN</code></pre>
+<p>Or, alternatively:</p>
+<pre class="r"><code>&gt; Sys.setenv(LANG = &quot;en&quot;)
+&gt; log(-3)
+Warning in log(-3): NaNs produced
+[1] NaN</code></pre>
+<p>and then:</p>
+<pre class="r"><code>&gt; Sys.setenv(LANG = &quot;fr&quot;)
+&gt; log(-3)
+Warning in log(-3): production de NaN
+[1] NaN</code></pre>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.41" />
+
+
+<title>Confidence intervals - R receipes</title>
+<meta property="og:title" content="Confidence intervals - R receipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">1 min read</span>
+    
+
+    <h1 class="article-title">Confidence intervals</h1>
+
+    
+    <span class="article-date">2018/01/09</span>
+    
+
+    <div class="article-content">
+      <p>Simulating fake data:</p>
+<pre class="r"><code>&gt; x &lt;- 10 * runif(10)
+&gt; y &lt;- rnorm(10, mean = 2 + 3 * x, 3)</code></pre>
+<p>Visualizing:</p>
+<pre class="r"><code>&gt; plot(y ~ x, col = &quot;blue&quot;, pch = 19)</code></pre>
+<p><img src="/post/2018-01-09-confidence-intervals_files/figure-html/unnamed-chunk-3-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>Estimating a linear model:</p>
+<pre class="r"><code>&gt; model &lt;- lm(y ~ x)</code></pre>
+<p>Calculating and plotting 95 % confidence interval based on simulations:</p>
+<pre class="r"><code>&gt; xr &lt;- 100
+&gt; nb &lt;- 1000
+&gt; ci &lt;- .95
+&gt; eps &lt;- (1 - ci) / 2
+&gt; xs &lt;- seq(min(x), max(x), length = xr)
+&gt; coef_val &lt;- MASS::mvrnorm(nb, coef(model), vcov(model))
+&gt; ys &lt;- t(coef_val %*% rbind(1, xs))
+&gt; predconf &lt;- t(apply(ys, 1, quantile, c(eps, 1 - eps)))</code></pre>
+<p>Let’s plot all this:</p>
+<pre class="r"><code>&gt; plot(y ~ x, type = &quot;n&quot;)
+&gt; matlines(xs, ys, col = adjustcolor(&quot;black&quot;, .05), lty = 1)
+&gt; matlines(xs, predconf, col = &quot;red&quot;, lty = 1, lwd = 2)
+&gt; points(y ~ x, col = &quot;blue&quot;, pch = 19)</code></pre>
+<p><img src="/post/2018-01-09-confidence-intervals_files/figure-html/unnamed-chunk-6-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
