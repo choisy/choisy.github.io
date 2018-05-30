@@ -6,10 +6,21 @@
     <description>Recent content in R on R receipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 14 May 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 30 May 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/r/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Parallel computation</title>
+      <link>/2018/05/30/parallel-computation/</link>
+      <pubDate>Wed, 30 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/05/30/parallel-computation/</guid>
+      <description>Parallel version of replicate with parallel Loading the package:
+&amp;gt; library(parallel) of which we’ll use the 6 following functions:
+ detectCores which detects the number of CPU cores; makeCluster which creates a cluster of a given number of cores; clusterEvalQ which evaluates a literal expression on each cluster node. It is a parallel version of evalq. clusterExport which assigns the values on the master R process of the variables named in its named list argument to variables of the same names in the global environment (aka workspace) of each node; parSapply parallel version of sapply.</description>
+    </item>
     
     <item>
       <title>System language</title>

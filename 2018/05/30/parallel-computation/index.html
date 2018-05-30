@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.41" />
+
+
+<title>Parallel computation - R receipes</title>
+<meta property="og:title" content="Parallel computation - R receipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">2 min read</span>
+    
+
+    <h1 class="article-title">Parallel computation</h1>
+
+    
+    <span class="article-date">2018/05/30</span>
+    
+
+    <div class="article-content">
+      <div id="parallel-version-of-replicate-with-parallel" class="section level2">
+<h2>Parallel version of <code>replicate</code> with <code>parallel</code></h2>
+<p>Loading the package:</p>
+<pre class="r"><code>&gt; library(parallel)</code></pre>
+<p>of which we’ll use the 6 following functions:</p>
+<ul>
+<li><code>detectCores</code> which detects the number of CPU cores;</li>
+<li><code>makeCluster</code> which creates a cluster of a given number of cores;</li>
+<li><code>clusterEvalQ</code> which evaluates a literal expression on each cluster node. It is a parallel version of <code>evalq</code>.</li>
+<li><code>clusterExport</code> which assigns the values on the master R process of the variables named in its named list argument to variables of the same names in the global environment (aka workspace) of each node;</li>
+<li><code>parSapply</code> parallel version of <code>sapply</code>.</li>
+<li><code>stopCluster</code> which shuts done the cluster.</li>
+</ul>
+<p>The first step is to create a cluster. It’s good practice to let one core available, in case:</p>
+<pre class="r"><code>&gt; cl &lt;- makeCluster(detectCores() - 1)</code></pre>
+<p>Then, we need to populate each core of the cluster with any package we may need:</p>
+<pre class="r"><code>&gt; clusterEvalQ(cl, library(package1, package2))</code></pre>
+<p>as well as any object (data and functions) we may need from the current workspace, for example:</p>
+<pre class="r"><code>&gt; clusterExport(cl, c(&quot;data1&quot;, &quot;data2&quot;, &quot;fct1&quot;, &quot;fct2&quot;))</code></pre>
+<p>Then, you ready to launch your calculations with <code>nb</code> replicates:</p>
+<pre class="r"><code>&gt; out &lt;- parSapply(cl, 1:nb, function(x) {
++ # here you include what should be done in each replication.
++ # this calculation will require the packages package1 and package2,
++ # as well as data data1 and data2 and function fct1 and fct2 of the
++ # workspace.
++ })</code></pre>
+<p>Once your calculations are done, you have to terminate the cluster:</p>
+<pre class="r"><code>&gt; stopCluster(cl)</code></pre>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
