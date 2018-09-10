@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.41" />
+
+
+<title>Big data packages - R recipes</title>
+<meta property="og:title" content="Big data packages - R recipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">3 min read</span>
+    
+
+    <h1 class="article-title">Big data packages</h1>
+
+    
+    <span class="article-date">2018/05/31</span>
+    
+
+    <div class="article-content">
+      <p>When you create an R data package, it may happen that the data is too big to be hosted on CRAN that has a package size limit of 5 MB or even on Github that has a repository size limit of 1 GB and a file size limit of 100 MB. Here I show how to build such a package in a way that leaves the data on another server and then lets the user download the data when (s)he needs it for the first time. The downloadoing process copy the data in the installed package file hierarchy so that the user will not have to download it again for subsequent uses.</p>
+<p>In the example I show below I simply use dropbox for the data server. This is particularly convenient when the local repository of the package is synchronized with dropbox. In that case, the operation basically consists in (i) making Git ignore the data and (ii) allowing the user to download the data from dropbox when (s)he needs it for the first time.</p>
+<ul>
+<li>In your package file hierarchy, create a <code>data-raw</code> directory with the following structure:</li>
+</ul>
+<pre class="r"><code>data-raw
+       |-data_creation.R
+       |-dropbox
+               |-data-raw
+               |-extdata</code></pre>
+<p>where <code>data-raw/</code> is created, following Wickham’s suggestion, by the following command</p>
+<pre class="r"><code>&gt; devtools::use_data_raw()</code></pre>
+<p>This directory contains raw data that are used to generate the data that will be include in the package. This directory will not be included in the bundled version of the package. Also, still following Wickham’s suggestion, this <code>raw-data/</code> contains an R script <code>data-creation.R</code> that documents how the clean version of the data that will be included in the package is created from these raw data. What we add here to this file structure, is the sub-directory <code>dropbox/</code> that will contain the data that will not be included in the bundled version of the package but instead will be downloaded by the user when (s)he first need them. So will have to make Git ignore this directory, at the bash command line:</p>
+<pre class="bash"><code>$ cat &quot;data-raw/dropbox&quot; &gt;&gt; .gitignore </code></pre>
+<p>or manually. Then, create a <code>get*</code> function. This function will test whether the data is already present in the package file hierarchy. If not, it will ask the user when (s)he wants to download and install it</p>
+<pre class="r"><code>&gt; getsrtm &lt;- function() {
++   if (!file.exists(paste0(installed.packages()[&quot;srtmVN&quot;, &quot;LibPath&quot;], &quot;/srtmVN/extdata/srtm90.tif&quot;))) {
++     message(&quot;SRTM data are not on disk.&quot;)
++     message(&quot;Do you want to download them from the internet (108.0 MB)? y (default) / n&quot;)
++     ans &lt;- readline()
++     if (ans %in% c(&quot;y&quot;, &quot;&quot;))
++       download(&quot;http://marcchoisy.free.fr/srtm90.tif&quot;, &quot;srtmVN&quot;, &quot;srtm90.tif&quot;)
++     else return(NULL)
++   }
++   data(&quot;srtm90&quot;, package = &quot;srtmVN&quot;)
++   srtm90@file@name &lt;- system.file(&quot;extdata&quot;, &quot;srtm90.tif&quot;, package = &quot;srtmVN&quot;)
++   srtm90
++ }
+&gt; </code></pre>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

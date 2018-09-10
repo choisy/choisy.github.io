@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Categories on R receipes</title>
+    <title>Categories on R recipes</title>
     <link>/categories/</link>
-    <description>Recent content in Categories on R receipes</description>
+    <description>Recent content in Categories on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
+    <lastBuildDate>Thu, 31 May 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Big Data</title>
+      <link>/categories/big-data/</link>
+      <pubDate>Thu, 31 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/categories/big-data/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>Computing</title>
@@ -29,9 +39,18 @@
     </item>
     
     <item>
+      <title>Package</title>
+      <link>/categories/package/</link>
+      <pubDate>Thu, 31 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/categories/package/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>R</title>
       <link>/categories/r/</link>
-      <pubDate>Wed, 30 May 2018 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 31 May 2018 00:00:00 +0000</pubDate>
       
       <guid>/categories/r/</guid>
       <description></description>

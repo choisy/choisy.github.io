@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>R on R receipes</title>
+    <title>R on R recipes</title>
     <link>/categories/r/</link>
-    <description>Recent content in R on R receipes</description>
+    <description>Recent content in R on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 30 May 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 31 May 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/r/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Big data packages</title>
+      <link>/2018/05/31/big-data-packages/</link>
+      <pubDate>Thu, 31 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/05/31/big-data-packages/</guid>
+      <description>When you create an R data package, it may happen that the data is too big to be hosted on CRAN that has a package size limit of 5 MB or even on Github that has a repository size limit of 1 GB and a file size limit of 100 MB. Here I show how to build such a package in a way that leaves the data on another server and then lets the user download the data when (s)he needs it for the first time.</description>
+    </item>
     
     <item>
       <title>Parallel computation</title>
