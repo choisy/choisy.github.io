@@ -6,10 +6,19 @@
     <description>Recent content in R on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 31 May 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 10 Sep 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/r/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Downloading files from Github or Dropbox</title>
+      <link>/2018/09/10/downloading-files-from-github-or-dropbox/</link>
+      <pubDate>Mon, 10 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/09/10/downloading-files-from-github-or-dropbox/</guid>
+      <description>There are functions in R that work on URL, such as download.file or even read.table (plus many others, including some from dedicated packages such as RCurl). One may thus think that (s)he can just go on a Github or Dropbox webpage, copy the URL of the file their are interested in and paste it directly into R. It’s almost that, except for a little tweak. Indeed the URL that you would copy this way is the URL to the file display on the webpage.</description>
+    </item>
     
     <item>
       <title>Big data packages</title>

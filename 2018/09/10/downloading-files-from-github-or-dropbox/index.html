@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.41" />
+
+
+<title>Downloading files from Github or Dropbox - R recipes</title>
+<meta property="og:title" content="Downloading files from Github or Dropbox - R recipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">1 min read</span>
+    
+
+    <h1 class="article-title">Downloading files from Github or Dropbox</h1>
+
+    
+    <span class="article-date">2018/09/10</span>
+    
+
+    <div class="article-content">
+      <p>There are functions in R that work on URL, such as <code>download.file</code> or even <code>read.table</code> (plus many others, including some from dedicated packages such as <code>RCurl</code>). One may thus think that (s)he can just go on a Github or Dropbox webpage, copy the URL of the file their are interested in and paste it directly into R. It’s almost that, except for a little tweak. Indeed the URL that you would copy this way is the URL to the file display on the webpage. What you need instead is the URL of the actual file. And this can be accessed by ending the URL with <code>?raw=1</code> (or, equivalently, <code>?raw=t</code>, <code>?raw=T</code>, <code>?raw=true</code>, <code>?raw=True</code>, <code>?raw=TRUE</code>, etc…). By default, if you copy-paste from Dropbox, your URL will end by <code>?dl=0</code>. What you have to do here is just replace this <code>?dl=0</code> by <code>?raw=1</code> in your URL. Copied from Github, your URL will not end with <code>?dl=0</code> or <code>?raw=1</code>, then just add <code>?raw=1</code> to the end of your URL. Here is an example on how to download and laod an <code>rda</code> file from GitHub:</p>
+<pre class="r"><code>download.file(&quot;https://github.com/.../data.rda?raw=1&quot;, &quot;data.rda&quot;)
+load(&quot;data.rda&quot;)
+file.remove(&quot;data.rda&quot;)</code></pre>
+<p>Below is an example on how to read a table directly from Dropbox:</p>
+<pre class="r"><code>data &lt;- read.table(&quot;https://www.dropbox.com/.../data.txt?raw=1&quot;)</code></pre>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
