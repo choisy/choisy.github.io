@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.49" />
+
+
+<title>Computing population centers - R recipes</title>
+<meta property="og:title" content="Computing population centers - R recipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">3 min read</span>
+    
+
+    <h1 class="article-title">Computing population centers</h1>
+
+    
+    <span class="article-date">2018/10/29</span>
+    
+
+    <div class="article-content">
+      <p>In demographics, the centre of population (or population center, or population centroid) of a region is a geographical point that describes a centrepoint of the region’s population. See <a href="https://en.wikipedia.org/wiki/Center_of_population">here</a> for more detail. The figure below shows for example the change of the location of the population center of the USA from 1790 to 2010:</p>
+<div style="text-align:center">
+<p><a title="By U.S. Census Bureau [Public domain], via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:US_Mean_Center_of_Population_1790-2010.PNG"><img width="512" alt="US Mean Center of Population 1790-2010" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/US_Mean_Center_of_Population_1790-2010.PNG/512px-US_Mean_Center_of_Population_1790-2010.PNG"></a></p>
+</div>
+<p>In this post we show how we can use population density raster data from the <a href="http://www.worldpop.org.uk">WorldPop</a> project to calculate population centers of given polygons such as those provided by the <a href="https://gadm.org">GADM</a> project. We will use Vietnam as a case study, first calculating the population center of the province of Hanoi and comparing it to the geometric barycenter. Then, we’ll introduce a pipeline that allows to calculate the population centers of all the provinces of Vietnam in one go.</p>
+<p>The <a href="http://www.worldpop.org.uk">WorldPop</a> data can be accessed directly from the <a href="https://github.com/choisy/worldpopVN">worldpopVN</a> package. The <a href="https://gadm.org">GADM</a> data will be downloaded using the <code>gadm()</code> function of the <a href="https://github.com/choisy/sptools"><code>sptools</code></a> package.</p>
+<pre class="r"><code># install.packages(c(&quot;devtools&quot;, &quot;sp&quot;, &quot;raster&quot;, &quot;rgeos&quot;, &quot;magrittr&quot;, &quot;dplyr&quot;, &quot;purrr&quot;))
+# devtools::install_github(&quot;choisy/worldpopVN&quot;)
+# devtools::install_github(&quot;choisy/sptools&quot;)</code></pre>
+<pre class="r"><code>library(sp)       # sp methods
+library(raster)   # raster methods
+library(magrittr) # %&gt;% </code></pre>
+<p>The <a href="http://www.worldpop.org.uk">WorldPop</a> data:</p>
+<pre class="r"><code>wp &lt;- worldpopVN::getpop()</code></pre>
+<p>Which gives:</p>
+<pre class="r"><code>plot(wp)</code></pre>
+<p><img src="/post/2018-10-29-computing-population-centroids_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>The provinces polygons from <a href="https://gadm.org">GADM</a>:</p>
+<pre class="r"><code>gadm &lt;- sptools::gadm(&quot;vietnam&quot;, &quot;sp&quot;, 1)</code></pre>
+<p>Which gives:</p>
+<pre class="r"><code>plot(gadm)</code></pre>
+<p><img src="/post/2018-10-29-computing-population-centroids_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Let’s crop the raster data along the polygon of the province of Hanoi:</p>
+<pre class="r"><code>hanoi_polygon &lt;- subset(gadm, VARNAME_1 == &quot;Ha Noi&quot;)
+hanoi &lt;- sptools::crop_on_poly(wp, hanoi_polygon)</code></pre>
+<p>Which gives:</p>
+<pre class="r"><code>plot(hanoi)</code></pre>
+<p><img src="/post/2018-10-29-computing-population-centroids_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>From that, calculating the population center needs 2 steps:</p>
+<ul>
+<li>extracting the population values in each pixel and transforming them into weights (i.e. between 0 and 1 and summing to 1);</li>
+<li>extracting the coordinates of the center of each pixel and weight-summing the longitude and latitude values with the weights calculated in the first step.</li>
+</ul>
+<p>Before these 2 steps, the raster need to be converted to a <code>SpatialPointsDataFrame</code> object:</p>
+<pre class="r"><code>hanoi2 &lt;- raster::rasterToPoints(hanoi, spatial = TRUE)</code></pre>
+<p>The first step is:</p>
+<pre class="r"><code>values &lt;- hanoi2@data[[1]]
+weights &lt;- values / sum(values)</code></pre>
+<p>The second step is:</p>
+<pre class="r"><code>pop_center &lt;- hanoi2 %&gt;%
+  sp::coordinates() %&gt;%
+  as.data.frame() %&gt;%
+  lapply(. %&gt;%
+           `*`(weights) %&gt;%
+            sum()) %&gt;%
+  unlist()</code></pre>
+<p>For comparison, let’s compute the simple geometric barycenter from the polygon of Hanoi:</p>
+<pre class="r"><code>barycenter &lt;- hanoi_polygon %&gt;% 
+  rgeos::gCentroid() %&gt;% 
+  sp::coordinates()</code></pre>
+<p>Let’s now compare the locations of the population center and the geometric barycenter:</p>
+<pre class="r"><code>plot(hanoi)
+points(pop_center[1], pop_center[2], pch = 1) # circle
+points(barycenter[1], barycenter[2], pch = 2) # triangle</code></pre>
+<p><img src="/post/2018-10-29-computing-population-centroids_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<div id="a-pipeline-to-calculate-the-population-centers-of-all-the-provinces" class="section level2">
+<h2>A pipeline to calculate the population centers of all the provinces</h2>
+<p>Let’s now imagine that we want to calculate the coordinates of the population centers of all the provinces of the <code>gadm</code> object. First, we’d need to include the 2 steps of the centroid calculation into a function:</p>
+<pre class="r"><code>weighted_centroid &lt;- function(spptdf) {
+  require(sp)
+  require(magrittr)
+  weights &lt;- spptdf %&gt;% # step 1
+    slot(&quot;data&quot;) %&gt;% 
+    {. / sum(.)}
+  spptdf %&gt;%            # step 2
+    coordinates() %&gt;%
+    as.data.frame() %&gt;%
+    lapply(. %&gt;%
+             `*`(weights) %&gt;%
+             sum()) %&gt;%
+    unlist()
+}</code></pre>
+<p>Then, we can run the following pipeline. It takes about 15’ on a MacBook Pro, the vast majority of that time being for the <code>crop_on_poly()</code> call.</p>
+<pre class="r"><code>pop_centers &lt;- gadm %&gt;%
+  sptools::as_list() %&gt;% 
+  lapply(sptools::crop_on_poly, rstr = wp) %&gt;% 
+  lapply(raster::rasterToPoints, spatial = TRUE)) %&gt;% 
+  lapply(weighted_centroid) %&gt;%
+  purrr::reduce(dplyr::bind_rows)</code></pre>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+

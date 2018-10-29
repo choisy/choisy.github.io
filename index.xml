@@ -6,10 +6,21 @@
     <description>Recent content on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 10 Sep 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 29 Oct 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Computing population centers</title>
+      <link>/2018/10/29/computing-population-centers/</link>
+      <pubDate>Mon, 29 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/10/29/computing-population-centers/</guid>
+      <description>In demographics, the centre of population (or population center, or population centroid) of a region is a geographical point that describes a centrepoint of the region’s population. See here for more detail. The figure below shows for example the change of the location of the population center of the USA from 1790 to 2010:
+
+ In this post we show how we can use population density raster data from the WorldPop project to calculate population centers of given polygons such as those provided by the GADM project.</description>
+    </item>
     
     <item>
       <title>Downloading files from Github or Dropbox</title>
