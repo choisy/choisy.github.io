@@ -145,7 +145,7 @@ points(barycenter[1], barycenter[2], pch = 2) # triangle</code></pre>
 <pre class="r"><code>pop_centers &lt;- gadm %&gt;%
   sptools::as_list() %&gt;% 
   lapply(sptools::crop_on_poly, rstr = wp) %&gt;% 
-  lapply(raster::rasterToPoints, spatial = TRUE)) %&gt;% 
+  lapply(raster::rasterToPoints, spatial = TRUE) %&gt;% 
   lapply(weighted_centroid) %&gt;%
   purrr::reduce(dplyr::bind_rows)</code></pre>
 </div>
