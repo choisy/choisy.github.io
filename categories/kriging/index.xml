@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Kriging on R recipes</title>
+    <link>/categories/kriging/</link>
+    <description>Recent content in Kriging on R recipes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 08 Nov 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/kriging/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Computing weather variables by province</title>
+      <link>/2018/11/08/computing-weather-variables-by-province/</link>
+      <pubDate>Thu, 08 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/11/08/computing-weather-variables-by-province/</guid>
+      <description>Weather variables such as temperature, humidity, rainfall, etc… are collected from climatic stations. These data are thus available from points in space whereas we often need them to be representative of administrative units (e.g. provinces) which are polygons. A strategy to transform points data into polygons data is to perform interpolation of points data onto a grid and then aggregation of grid data into polygons, as illustrated on the figure below:</description>
+    </item>
+    
+  </channel>
+</rss>

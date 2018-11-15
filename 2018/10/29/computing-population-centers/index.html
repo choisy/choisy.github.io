@@ -141,10 +141,10 @@ points(barycenter[1], barycenter[2], pch = 2) # triangle</code></pre>
              sum()) %&gt;%
     unlist()
 }</code></pre>
-<p>Then, we can run the following pipeline. It takes about 15’ on a MacBook Pro, the vast majority of that time being for the <code>crop_on_poly()</code> call.</p>
+<p>Then, we can run the following pipeline. It takes about 10’ on a MacBook Pro, the vast majority of that time being for the <code>crop_on_poly()</code> call.</p>
 <pre class="r"><code>pop_centers &lt;- gadm %&gt;%
   sptools::as_list() %&gt;% 
-  lapply(sptools::crop_on_poly, rstr = wp) %&gt;% 
+  parallel::mclapply(sptools::crop_on_poly, rstr = wp) %&gt;% 
   lapply(raster::rasterToPoints, spatial = TRUE) %&gt;% 
   lapply(weighted_centroid) %&gt;%
   purrr::reduce(dplyr::bind_rows)</code></pre>

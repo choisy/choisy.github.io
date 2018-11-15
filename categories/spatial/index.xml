@@ -6,10 +6,19 @@
     <description>Recent content in Spatial on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 29 Oct 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 08 Nov 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/spatial/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Computing weather variables by province</title>
+      <link>/2018/11/08/computing-weather-variables-by-province/</link>
+      <pubDate>Thu, 08 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/2018/11/08/computing-weather-variables-by-province/</guid>
+      <description>Weather variables such as temperature, humidity, rainfall, etc… are collected from climatic stations. These data are thus available from points in space whereas we often need them to be representative of administrative units (e.g. provinces) which are polygons. A strategy to transform points data into polygons data is to perform interpolation of points data onto a grid and then aggregation of grid data into polygons, as illustrated on the figure below:</description>
+    </item>
     
     <item>
       <title>Computing population centers</title>
