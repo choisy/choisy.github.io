@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Hugo 0.49" />
+<meta name="generator" content="Hugo 0.51" />
 
 
 <title>Big data packages - R recipes</title>
@@ -69,7 +69,10 @@
     
 
     <div class="article-content">
-      <p>When you create an R data package, it may happen that the data is too big to be hosted on CRAN that has a package size limit of 5 MB or even on Github that has a repository size limit of 1 GB and a file size limit of 100 MB. Here I show how to build such a package in a way that leaves the data on another server and then lets the user download the data when (s)he needs it for the first time. The downloadoing process copy the data in the installed package file hierarchy so that the user will not have to download it again for subsequent uses.</p>
+      
+
+
+<p>When you create an R data package, it may happen that the data is too big to be hosted on CRAN that has a package size limit of 5 MB or even on Github that has a repository size limit of 1 GB and a file size limit of 100 MB. Here I show how to build such a package in a way that leaves the data on another server and then lets the user download the data when (s)he needs it for the first time. The downloadoing process copy the data in the installed package file hierarchy so that the user will not have to download it again for subsequent uses.</p>
 <p>In the example I show below I simply use dropbox for the data server. This is particularly convenient when the local repository of the package is synchronized with dropbox. In that case, the operation basically consists in (i) making Git ignore the data and (ii) allowing the user to download the data from dropbox when (s)he needs it for the first time.</p>
 <ul>
 <li>In your package file hierarchy, create a <code>data-raw</code> directory with the following structure:</li>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Hugo 0.49" />
+<meta name="generator" content="Hugo 0.51" />
 
 
 <title>Computing weather variables by province - R recipes</title>
@@ -59,7 +59,7 @@
 
   <article class="article">
     
-    <span class="article-duration">16 min read</span>
+    <span class="article-duration">17 min read</span>
     
 
     <h1 class="article-title">Computing weather variables by province</h1>
@@ -69,15 +69,46 @@
     
 
     <div class="article-content">
-      <p>Weather variables such as temperature, humidity, rainfall, <em>etc</em>… are collected from climatic stations. These data are thus available from <strong>points</strong> in space whereas we often need them to be representative of administrative units (<em>e.g.</em> provinces) which are <strong>polygons</strong>. A strategy to transform points data into polygons data is to perform <strong>interpolation</strong> of points data onto a <strong>grid</strong> and then <strong>aggregation</strong> of grid data into polygons, as illustrated on the figure below:</p>
+      
+
+
+<p>Weather variables such as temperature, humidity, rainfall, <em>etc</em>… are
+collected from climatic stations. These data are thus available from <strong>points</strong>
+in space whereas we often need them to be representative of administrative units
+(<em>e.g.</em> provinces) which are <strong>polygons</strong>. A strategy to transform points data
+into polygons data is to perform <strong>interpolation</strong> of points data onto a <strong>grid</strong>
+and then <strong>aggregation</strong> of grid data into polygons, as illustrated on the
+figure below:</p>
 <div style="text-align:center">
 <p><img src = "/images/interpolation-aggregation.png" width = "300"/></p>
 </div>
-<p>On this figure, 4 climatic stations are represented by red dots. Interpolation consists in using data from these red dot climatic stations to compute values on blue nodes of the grid. Aggregation then consists in using the data from the blue nodes inside a given polygon to compute variables that are representative of this polygon. In practice, both the interpolation and the aggregation steps can be performed by a number of different algorithms. One common algorithm used for spatial interpolation is <strong>kriging</strong> that we will consider here. A way simple to perform aggregation is to consider the mean of the values of the blue nodes inside a polygon. This produces a value that is representative of the polygon as a geomtric object. However, when we consider provinces as spatial units in epidemiology, what we often want our variables to be representative of is more the <strong>population</strong> living inside the province polygon than the province polygon as a geometric object. A way to do so when computing the aggregated variables, is to <strong>weight</strong> the data from each blue node using a measure of population size inside the green square around that blue node, as illustrated on the figure below where the sizes of the blue node represent the population weights:</p>
+<p>On this figure, 4 climatic stations are represented by red dots. Interpolation
+consists in using data from these red dot climatic stations to compute values on
+blue nodes of the grid. Aggregation then consists in using the data from the blue
+nodes inside a given polygon to compute variables that are representative of this
+polygon. In practice, both the interpolation and the aggregation steps can be
+performed by a number of different algorithms. One common algorithm used for
+spatial interpolation is <strong>kriging</strong> that we will consider here. A simple way to
+perform aggregation is to consider the mean of the values of the blue nodes inside
+a polygon. This produces a value that is representative of the polygon as a
+geometric object. However, when we consider provinces as spatial units in
+epidemiology, what we often want our variables to be representative of is more
+the <strong>population</strong> living inside the province polygon than the province polygon
+as a geometric object. A way to do so when computing the aggregated variables,
+is to <strong>weight</strong> the data from each blue node using a measure of population size
+inside the green square around that blue node, as illustrated on the figure below
+where the sizes of the blue node represent the population weights:</p>
 <div style="text-align:center">
 <p><img src = "/images/weighted-aggregation.png" width = "300"/></p>
 </div>
-<p>This is now possible thanks to the <a href="http://www.worldpop.org.uk">WorldPop</a> project that provides population sizes per pixels for a large number of countries around the world. An obvious way to compute weights from these pixel-based population data is to divide the population size in each pixel by the sum of the population sizes of all the pixels inside the same polygon. This way, we ensure that the weights of all the pixels of a given polygon sum to 1. They thus reflect where the population of a given province moslty live. In this post we will show how to perform so in R, using Vietnam as an example.</p>
+<p>This is now possible thanks to the <a href="http://www.worldpop.org.uk">WorldPop</a>
+project that provides population sizes per pixels for a large number of
+countries around the world. An obvious way to compute weights from these
+pixel-based population data is to divide the population size in each pixel
+by the sum of the population sizes of all the pixels inside the same polygon.
+This way, we ensure that the weights of all the pixels of a given polygon sum
+to 1. They thus reflect where the population of a given province mostly live. In
+this post we will show how to perform so in R, using Vietnam as an example.</p>
 <div id="packages" class="section level2">
 <h2>Packages</h2>
 <p>We will need the following packages:</p>
@@ -92,12 +123,18 @@ library(sptools) # gadm, make_grid, add_from_raster, add_variable_spdf,
 library(mcutils) # ovv
 library(tidyr)   # gather, separate, spread
 library(dplyr)   # select, filter, arrange, mutate, mutate_at, mutate_if</code></pre>
+<p>Note that it is good practice to load <code>dplyr</code> the last, in order to avoid
+name conflicts with other packages, such as <code>select()</code> of the <code>raster</code> package.</p>
 </div>
 <div id="the-data" class="section level2">
 <h2>The data</h2>
 <div id="climatic-data" class="section level3">
 <h3>Climatic data</h3>
-<p>The climatic data are available by month for 67 climatic stations accross Vietnam from the <a href="http://vnclimate.vn/en">Institute of Hydrology, Meteorology Science and Climate Change</a> of Vietnam and packaged in the <a href="https://choisy.github.io/imhen"><code>imhen</code></a> R package:</p>
+<p>The climatic data are available by month for 67 climatic stations accross Vietnam
+from the
+<a href="http://vnclimate.vn/en">Institute of Hydrology, Meteorology Science and Climate Change</a>
+of Vietnam and packaged in the <a href="https://choisy.github.io/imhen"><code>imhen</code></a> R
+package:</p>
 <pre class="r"><code>meteo &lt;- imhen::meteo</code></pre>
 <p>for the climatic data that look like</p>
 <pre class="r"><code>ovv(meteo)</code></pre>
@@ -143,37 +180,49 @@ library(dplyr)   # select, filter, arrange, mutate, mutate_at, mutate_if</code><
 </div>
 <div id="geographical-data" class="section level3">
 <h3>Geographical data</h3>
-<p>The grid on which the interpolation will be performed will be generated from the polygon of the whole country that can be obtained from <a href="https://gadm.org">GADM</a>:</p>
+<p>The grid on which the interpolation will be performed will be generated from the
+polygon of the whole country that can be obtained from
+<a href="https://gadm.org">GADM</a> (takes about <strong>5’’</strong> to download):</p>
 <pre class="r"><code>country &lt;- gadm(&quot;vietnam&quot;, &quot;sp&quot;, 0)</code></pre>
-<p>And the polygons of the provinces of Vietnam needed for the aggregation step can also be obtained from <a href="https://gadm.org">GADM</a>:</p>
+<p>And the polygons of the provinces of Vietnam needed for the aggregation step
+can also be obtained from <a href="https://gadm.org">GADM</a> (takes about <strong>5’’</strong> to download):</p>
 <pre class="r"><code>provinces &lt;- gadm(&quot;vietnam&quot;, &quot;sp&quot;, 1)</code></pre>
-<p>None of these polygons is projected:</p>
+<p>None of these polygons are projected:</p>
 <pre class="r"><code>proj4string(country)</code></pre>
 <pre><code>## [1] &quot;+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0&quot;</code></pre>
 <pre class="r"><code>proj4string(provinces)</code></pre>
 <pre><code>## [1] &quot;+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0&quot;</code></pre>
-<p>Here is the country polygon together with the locations of the climatic stations:</p>
+<p>Here is the country polygon together with the locations of the climatic stations
+(takes about <strong>6’’</strong> on a MacBook Pro):</p>
 <pre class="r"><code>plot(country)
 plot(stations, add = TRUE, col = &quot;red&quot;)</code></pre>
 <p><img src="/post/2018-11-08-computing-weather-variables-by-province_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
-<p>And here are the polygons the of the provinces:</p>
+<p>And here are the polygons the of the provinces (takes about <strong>7’’</strong>):</p>
 <pre class="r"><code>plot(provinces)</code></pre>
 <p><img src="/post/2018-11-08-computing-weather-variables-by-province_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 </div>
 <div id="elevation-data" class="section level3">
 <h3>Elevation data</h3>
-<p>In order to improve performance, the spatial interpolation will be performed using latitude and elevation as <strong>covariables</strong>. Elevation data can be retrieved from the <a href="http://srtm.csi.cgiar.org">SRTM</a> project (vertical error reported to be less than 16 m). The data for Vietnam from that project are available from the <a href="https://github.com/choisy/srtmVN"><code>srtmVN</code></a> R package:</p>
+<p>In order to improve performance, the spatial interpolation will be performed
+using latitude and elevation as <strong>covariables</strong>. Elevation data can be retrieved
+from the <a href="http://srtm.csi.cgiar.org">SRTM</a> project (vertical error reported to
+be less than 16 m). The data for Vietnam from that project are available from
+the <a href="https://github.com/choisy/srtmVN"><code>srtmVN</code></a> R package (takes about <strong>45’’</strong>
+to download the ca 100 MB of data if they are not on disk):</p>
 <pre class="r"><code>elevation &lt;- srtmVN::getsrtm()</code></pre>
 <p>Note that <code>elevation</code> is not projected either:</p>
 <pre class="r"><code>proj4string(elevation)</code></pre>
 <pre><code>## [1] &quot;+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0&quot;</code></pre>
-<p>And the data look like this:</p>
+<p>And the data look like this (takes about <strong>20’’</strong> on a MacBook Pro):</p>
 <pre class="r"><code>plot(elevation)</code></pre>
 <p><img src="/post/2018-11-08-computing-weather-variables-by-province_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 </div>
 <div id="population-density-data" class="section level3">
 <h3>Population density data</h3>
-<p>Finally, the population data that we will use for the aggregation are from the <a href="http://www.worldpop.org.uk">WorldPop</a> project that can be accessed directly from the <a href="https://github.com/choisy/worldpopVN"><code>worldpopVN</code></a> R package:</p>
+<p>Finally, the population data that we will use for the aggregation are from the
+<a href="http://www.worldpop.org.uk">WorldPop</a> project that can be accessed directly
+from the <a href="https://github.com/choisy/worldpopVN"><code>worldpopVN</code></a> R package (takes
+about <strong>1’30’’</strong> to download the 600 MB of data if they are not on disk):</p>
 <pre class="r"><code>popdensity &lt;- worldpopVN::getpop()</code></pre>
 <p>These data are not not projected either:</p>
 <pre class="r"><code>proj4string(popdensity)</code></pre>
@@ -181,7 +230,10 @@ plot(stations, add = TRUE, col = &quot;red&quot;)</code></pre>
 <p>and look like this:</p>
 <pre class="r"><code>plot(popdensity)</code></pre>
 <p><img src="/post/2018-11-08-computing-weather-variables-by-province_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
-<p>In the next 2 sections, we’ll show the details of the interpolation and aggregation steps respectively. Note that these two steps are applied to a given climatic variable on a given month (of a given year). In the last section, we’ll show how to assemble these 2 steps into a pipeline that</p>
+<p>In the next 2 sections, we’ll show the details of the interpolation and
+aggregation steps respectively. Note that these two steps are applied to a given
+climatic variable on a given month (of a given year). In the last section, we’ll
+show how to assemble these 2 steps into a pipeline that</p>
 <ul>
 <li><strong>splits</strong> the data by climatic variable and month;</li>
 <li><strong>applies</strong> interpolation and aggregation on a given variable and a given month;</li>
@@ -191,7 +243,14 @@ plot(stations, add = TRUE, col = &quot;red&quot;)</code></pre>
 </div>
 <div id="interpolation" class="section level2">
 <h2>Interpolation</h2>
-<p>As explained above, the first step of the algorithm is interpolation of the data collected from climatic stations (points) onto a grid (<em>i.e.</em> a collection of points regularly spaced). For that we thus need to generate a grid. Furthermore, as explained above too, in order to improve the performance of the interpolation, we will consider latitude and elevation as covariables and these variables thus need to be added to the grid. The following function makes a grid of approximately <code>n</code> cells from a <code>SpatialPolygons*</code> <code>plgn</code> with the latitude and the variable <code>var</code> of the <code>Raster*</code> <code>rstr</code> as covariables:</p>
+<p>As explained above, the first step of the algorithm is interpolation of the
+data collected from climatic stations (points) onto a grid (<em>i.e.</em> a collection
+of points regularly spaced). For that we thus need to generate a grid.
+Furthermore, as explained above too, in order to improve the performance of the
+interpolation, we will consider latitude and elevation as covariables and these
+variables thus need to be added to the grid. The following function makes a grid
+of approximately <code>n</code> cells from a <code>SpatialPolygons*</code> <code>plgn</code> with the latitude
+and the variable <code>var</code> of the <code>Raster*</code> <code>rstr</code> as covariables:</p>
 <pre class="r"><code>make_grid &lt;- function(plgn, rstr, var, n, ...) {
   require(magrittr) # %&gt;% 
   plgn %&gt;%
@@ -199,12 +258,16 @@ plot(stations, add = TRUE, col = &quot;red&quot;)</code></pre>
     sptools::add_from_raster(rstr, var) %&gt;%
     sptools::add_variable_spdf(., data.frame(latitude = coordinates(.)[, 2]))
 }</code></pre>
-<p>Let’s use this function to generate a grid of approximately 10,000 cells inside Vietnam. It takes about <strong>20’’</strong> on a MacBook Pro:</p>
+<p>Let’s use this function to generate a grid of approximately 10,000 cells inside
+Vietnam. It takes about <strong>20’’</strong> on a MacBook Pro:</p>
 <pre class="r"><code>grid &lt;- make_grid(country, elevation, &quot;elevation&quot;, 10000)</code></pre>
 <p>We can check that there are approximately 10,000 cells:</p>
 <pre class="r"><code>length(grid)</code></pre>
 <pre><code>## [1] 9960</code></pre>
-<p>Next, we need a function that takes data of one given climatic variable from a given month together with a grid as inputs and returns the interpolated values of the data on the grid. The following function is one option for such a function, using kriging:</p>
+<p>Next, we need a function that takes data of one given climatic variable from a
+given month together with a grid as inputs and returns the interpolated values
+of the data on the grid. The following function is one option for such a
+function, using kriging:</p>
 <pre class="r"><code>kriging &lt;- function(points, grid, formula, proj) {
   require(magrittr) # %&gt;%
   points %&gt;%
@@ -216,19 +279,32 @@ plot(stations, add = TRUE, col = &quot;red&quot;)</code></pre>
     dplyr::transmute(interpolated = var1.pred) %&gt;% 
     sptools::change_data(grid, .)
 }</code></pre>
-<p>Note that this function is based on the use of the <code>autoKrige()</code> function of the <code>automap</code> package, which is itself a wrapper around the <code>variogram()</code>, <code>fit.variogram()</code> and <code>krige()</code> functions of the <code>gstat</code> package in order to automate the tuning of hyperparamters when estimating the variogram (see <a href="https://rpubs.com/nabilabd/118172">here</a> for more details). Note also that we remove observations that contains missing values and that we project the data and the grid as required by the <code>autoKrige()</code> function. To use the function <code>kriging</code> we first need to</p>
+<p>Note that this function is based on the use of the <code>autoKrige()</code> function of the
+<code>automap</code> package, which is itself a wrapper around the <code>variogram()</code>,
+<code>fit.variogram()</code> and <code>krige()</code> functions of the <code>gstat</code> package in order to
+automate the tuning of hyperparamters when estimating the variogram (see
+<a href="https://rpubs.com/nabilabd/118172">here</a> for more details). Note also that we
+remove observations that contains missing values and that we project the data
+and the grid as required by the <code>autoKrige()</code> function. To use the function
+<code>kriging</code> we first need to</p>
 <ul>
 <li>select a given climatic variable of a given month and</li>
 <li>spatialise these data by merging it with the <code>stations</code> object</li>
 </ul>
-<p>Of note, since we are using latitude as a covariable in the kriging process, it means that we also need to add this variable to the <code>stations</code> object:</p>
+<p>Of note, since we are using latitude as a covariable in the kriging process, it
+means that we also need to add this variable to the <code>stations</code> object:</p>
 <pre class="r"><code>stations$latitude &lt;- coordinates(stations)[, 2]</code></pre>
-<p>Let’s consider the average temperature <code>Ta</code> for the month of December 2017 as an example. As a projection, we will consider the following <a href="https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system">Universal Transverse Mercator</a> (UTM) projection using the <a href="https://en.wikipedia.org/wiki/World_Geodetic_System">World Geodesic System</a> 84 (WGS84) (with units in meters):</p>
+<p>Let’s consider the average temperature <code>Ta</code> for the month of December 2017 as an
+example. As a projection, we will consider the following
+<a href="https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system">Universal Transverse Mercator</a> (UTM) projection using the
+<a href="https://en.wikipedia.org/wiki/World_Geodetic_System">World Geodesic System</a> 84
+(WGS84) (with units in meters):</p>
 <pre class="r"><code>projVN &lt;- &quot;+init=epsg:3405&quot;</code></pre>
-<p>See <a href="http://spatialreference.org">spatialreference.org</a> for more information. And here is the interpolation:</p>
+<p>See <a href="http://spatialreference.org">spatialreference.org</a> for more information.
+And here is the interpolation:</p>
 <pre class="r"><code>interpolated &lt;- meteo %&gt;%
   filter(year == 2017, month == &quot;December&quot;) %&gt;% 
-  select(year, month, station, Ta) %&gt;% 
+  dplyr::select(year, month, station, Ta) %&gt;% 
   merge(stations, .) %&gt;% 
   kriging(grid, Ta ~ latitude + elevation, projVN)</code></pre>
 <pre><code>## [using universal kriging]</code></pre>
@@ -245,7 +321,12 @@ plot(stations, add = TRUE, col = &quot;red&quot;)</code></pre>
 </div>
 <div id="aggregation" class="section level2">
 <h2>Aggregation</h2>
-<p>Now that the interpolation is done, the next step is to perform aggregation. For that, we need a function that takes as inputs a grid with interpolated values together with a collection of polygons (a <code>SpatialPolygons*</code> object) and returns aggregated values by polygons. A simple option would be to average the interpolated values inside each polygon, which could be done by the following function:</p>
+<p>Now that the interpolation is done, the next step is to perform aggregation.
+For that, we need a function that takes as inputs a grid with interpolated
+values together with a collection of polygons (a <code>SpatialPolygons*</code> object) and
+returns aggregated values by polygons. A simple option would be to average
+the interpolated values inside each polygon, which could be done by the following
+function:</p>
 <pre class="r"><code>simple_aggregation &lt;- function(grid, polygons, var) {
   sptools::apply_pts_by_poly(grid, polygons, var, mean, na.rm = TRUE)
 }</code></pre>
@@ -260,7 +341,11 @@ plot(stations, add = TRUE, col = &quot;red&quot;)</code></pre>
 ## [43] 23.07825 16.71103 22.96588 17.74512 19.12346 21.27914 16.17810
 ## [50] 18.63938 26.03440 13.92168 25.96282 18.95489 17.67058 16.02705
 ## [57] 16.53647 26.29503 26.14750 15.48116 26.14229 16.82875 13.94836</code></pre>
-<p>As explained above, a more sophisticated approach is to incorporate weights on the nodes of the grid when doing so. This is particularly relevant in epidemiology where we may want to weight the interpolated values of the grid using the population size on the nodes of the grid. This is what the following function does:</p>
+<p>As explained above, a more sophisticated approach is to incorporate
+weights on the nodes of the grid when doing so. This is particularly relevant
+in epidemiology where we may want to weight the interpolated values of the grid
+using the population size on the nodes of the grid. This is what the following
+function does:</p>
 <pre class="r"><code>weighted_aggregation &lt;- function(grid, polygons, weights) {
   require(magrittr)  # %&gt;% 
   grid %&gt;%
@@ -271,7 +356,13 @@ plot(stations, add = TRUE, col = &quot;red&quot;)</code></pre>
              raster::values() %&gt;%
              sum(na.rm = TRUE))
 }</code></pre>
-<p>Note that we could have parallelized the <code>sapply()</code> call but we chose not to since, ultimately, in the pipeline below, the <code>weighted_aggregation()</code> call will be inserted into a parallelized loop anyway (the loop over climatic variables and months). It appears that to use this function we need to compute the weights. The following function computes weights by polygons of the <code>plgns</code> <code>SpatialPolygons*</code> object from the data of the <code>rstr</code> <code>Raster*</code> object and using a grid <code>grid</code> (<code>SpatialPoints*</code> object):</p>
+<p>Note that we could have parallelized the <code>sapply()</code> call but we chose not to
+since, ultimately, in the pipeline below, the <code>weighted_aggregation()</code> call will be
+inserted into a parallelized loop anyway (the loop over climatic variables and
+months). It appears that to use this function we need to compute the weights.
+The following function computes weights by polygons of the <code>plgns</code>
+<code>SpatialPolygons*</code> object from the data of the <code>rstr</code> <code>Raster*</code> object and using
+a grid <code>grid</code> (<code>SpatialPoints*</code> object):</p>
 <pre class="r"><code>make_weights &lt;- function(rstr, grid, plgns) {
   require(magrittr) # %&gt;% 
   rstr %&gt;%
@@ -279,7 +370,8 @@ plot(stations, add = TRUE, col = &quot;red&quot;)</code></pre>
     sptools::split_on_poly(plgns) %&gt;% 
     parallel::mclapply(sptools::rescale_raster)
 }</code></pre>
-<p>Computing weights using the above-computed <code>grid</code> of 10,000 nodes takes about <strong>2’30’’</strong> on a MacBook Pro:</p>
+<p>Computing weights using the above-computed <code>grid</code> of 10,000 nodes takes about
+<strong>2’30’’</strong> on a MacBook Pro:</p>
 <pre class="r"><code>weights &lt;- make_weights(popdensity, grid, provinces)</code></pre>
 <p>Now that we have our weigths, we can perform our weighted aggregation:</p>
 <pre class="r"><code>(w_agg &lt;- weighted_aggregation(interpolated, provinces, weights))</code></pre>
@@ -296,40 +388,59 @@ plot(stations, add = TRUE, col = &quot;red&quot;)</code></pre>
 <pre class="r"><code>plot(w_agg, s_agg, xlab = &quot;weighted aggregation&quot;, ylab = &quot;simple aggregation&quot;)
 abline(0, 1)</code></pre>
 <p><img src="/post/2018-11-08-computing-weather-variables-by-province_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
-<p>which suggests, not surprisingly, that simple aggregation likely underestimates the temperature at the province level.</p>
+<p>which suggests, not surprisingly, that simple aggregation likely underestimates
+the temperature at the province level.</p>
 </div>
 <div id="pipeline" class="section level2">
 <h2>Pipeline</h2>
-<p>Now that we have seen how to apply interpolation and aggregation on one given variable of a given month, we can insert these two steps into a pipeline that does interpolation-aggregation on all the variables and all the months. The pipeline will thus have 3 sections:</p>
+<p>Now that we have seen how to apply interpolation and aggregation on one given
+variable of a given month, we can insert these two steps into a pipeline that
+does interpolation-aggregation on all the variables and all the months. The
+pipeline will thus have 3 sections:</p>
 <ul>
 <li>the first section will <strong>split</strong> the data by variable and month;</li>
-<li>the second section will <strong>apply</strong> interpolation-aggregation to each variable-month combination (this step will be parallelized);</li>
-<li>the third section will <strong>combine</strong> back all the results in the form of a data frame.</li>
+<li>the second section will <strong>apply</strong> interpolation-aggregation to each variable-month
+combination (this step will be parallelized);</li>
+<li>the third section will <strong>combine</strong> back all the results in the form of a data
+frame.</li>
 </ul>
-<p>In order to make this pipeline as <strong>flexible</strong> as possible, let’s consider the following function</p>
+<p>In order to make this pipeline as <strong>flexible</strong> as possible, let’s consider the
+following function</p>
 <pre class="r"><code>make_2arg_fct &lt;- function(f, ...) {
   function(x, y) {
     f(x, y, ...)
   }
 }</code></pre>
-<p>that we will use to create 2-argument functions for the interpolation and aggregation steps. For example, we can create a 2-argument interpolation function as so:</p>
+<p>that we will use to create 2-argument functions for the interpolation and
+aggregation steps. For example, we can create a 2-argument interpolation
+function as so:</p>
 <pre class="r"><code>interpolation &lt;- make_2arg_fct(kriging, value ~ latitude + elevation, projVN)</code></pre>
-<p>Note here that the formula is <code>value ~ latitude + elevation</code> and not <code>Ta ~ latitude + elevation</code> as above. This is because, in the pipeline, the interpolation step will be inserted into a loop over all the climatic variables. Thus the RHS of the formula will have to change depending on the climatic variable under consideration. The trick we chose to manage this issue is to always call the RHS of the formula simply <code>value</code>, which is anyway very easy to specify so with the <code>gather()</code> call that precedes the interpolation call in the pipeline. Similarly, from what we’ve seen above, we can make a 2-argument aggregation function as so:</p>
+<p>Note here that the formula is <code>value ~ latitude + elevation</code> and not
+<code>Ta ~ latitude + elevation</code> as above. This is because, in the pipeline, the
+interpolation step will be inserted into a loop over all the climatic variables.
+Thus the RHS of the formula will have to change depending on the climatic
+variable under consideration. The trick we chose to manage this issue is to always
+call the RHS of the formula simply <code>value</code>, which is anyway very easy to specify so
+with the <code>gather()</code> call that precedes the interpolation call in the pipeline.
+Similarly, from what we’ve seen above, we can make a 2-argument aggregation
+function as so:</p>
 <pre class="r"><code>aggregation &lt;- make_2arg_fct(simple_aggregation, &quot;interpolated&quot;)</code></pre>
 <p>or</p>
 <pre class="r"><code>aggregation &lt;- make_2arg_fct(weighted_aggregation, weights)</code></pre>
-<p>Below is an example of the pipeline applied to all the climatic variables of the last 2 months of 2017:</p>
+<p>Below is an example of the pipeline applied to all the climatic variables of the
+last 2 months of 2017 (takes about <strong>35’’</strong> on a MacBook Pro):</p>
 <pre class="r"><code>out &lt;- meteo %&gt;%
   filter(year == 2017, month %in% c(&quot;November&quot;, &quot;December&quot;)) %&gt;%
+#  filter(year == 2017) %&gt;%
   mutate_if(is.factor, as.character) %&gt;%
 # I. Prepare the data ----------------------------------------------------------
   gather(variable, value, -year, -month, -station) %&gt;% # defining &quot;variable&quot; and &quot;value&quot;
-  split(list(.$variable, .$year, .$month)) %&gt;%  # A. SPLIT
+  split(list(.$variable, .$year, .$month)) %&gt;%  # A. SPLIT  ### 0.28
 # II. For each month and variable ----------------------------------------------
   parallel::mclapply(. %&gt;%                      # B. APPLY
-                       merge(stations, .) %&gt;%       # (1) spatialize data
-                       interpolation(grid) %&gt;%      # (2) spatial interpolation
-                       aggregation(provinces)) %&gt;%  # (3) spatial aggregation
+                       merge(stations, .) %&gt;%       # (1) spatialize data  ### 0.152
+                       interpolation(grid) %&gt;%      # (2) spatial interpolation ### 24.900
+                       aggregation(provinces)) %&gt;%  # (3) spatial aggregation ### 401.247
 # III. Put results into shape --------------------------------------------------
   data.frame() %&gt;%                              # C. COMBINE
   cbind(province = provinces$VARNAME_1, .) %&gt;%
@@ -338,19 +449,53 @@ abline(0, 1)</code></pre>
   spread(variable, value) %&gt;%
   mutate(year  = as.integer(year),
          month = factor(month, month.name, ordered = TRUE)) %&gt;% 
-  arrange(year, province, month)</code></pre>
-<p>The <code>merge()</code> call is here included inside the loop but note that, in principle, it could have been included outside the loop. The reason we included it inside the loop is because it’s more efficient memory-wise this way. Note also that our strategy here is to use the <a href="https://www.jstatsoft.org/article/view/v040i01">split-apply-combine</a> scheme which offers the advantage that the apply step be easily <strong>parallelized</strong> with the <code>mclapply()</code> function of the <code>parallel</code> package. This function is not working on Windows though so Windows user will either have to use the <code>base::apply()</code> function instead or to parallelize the code by other means that are Windows compliant. The <code>group_by()</code>-<code>mutate()</code>-<code>ungroup()</code> from the <code>dplyr</code> package applies the <a href="https://www.jstatsoft.org/article/view/v040i01">split-apply-combine</a> strategy to a data frame. Feel free to try it here. Note also that the <a href="https://github.com/hadley/multidplyr">multidplyr</a> package offers ways to parallelize this. One option in particular is simply to replace <code>dplyr::group_by()</code> by <code>multidplyr::partition()</code> and <code>dplyr::ungroup()</code> by <code>multidplyr::collect()</code>. There are other options where the user can finely manage the clusters. Feel free to try this too. See <a href="http://blog.aicry.com/multidplyr-dplyr-meets-parallel-processing/index.html">here</a> for more information on the <code>multidplyr</code> package.</p>
+  arrange(year, province, month)       ### 446.544 </code></pre>
+<p>Note: for a full year, it takes about <em>4’</em>. Most of the time (92 %) is taken by
+the aggregation step. Interpolation takes 7 % of the time and the rest (1 %) is
+taken by data preparation (including split and merge) and combine step and data
+reshaping.</p>
+<p>The <code>merge()</code> call is here included inside the loop but note that, in principle,
+it could have been included outside the loop. The reason we included it inside
+the loop is because it’s more efficient memory-wise this way. Note also that our
+strategy here is to use the
+<a href="https://www.jstatsoft.org/article/view/v040i01">split-apply-combine</a> scheme
+which offers the advantage that the apply step be easily <strong>parallelized</strong> with the
+<code>mclapply()</code> function of the <code>parallel</code> package. This function is not working on
+Windows though so Windows user will either have to use the <code>base::apply()</code>
+function instead or to parallelize the code by other means that are Windows
+compliant (for example <code>parallel::parLapply()</code>). The <code>group_by()</code>-<code>mutate()</code>-<code>ungroup()</code> from the
+<code>dplyr</code> package applies the
+<a href="https://www.jstatsoft.org/article/view/v040i01">split-apply-combine</a> strategy
+to a data frame. Feel free to try it here. Note also that the
+<a href="https://github.com/hadley/multidplyr">multidplyr</a> package offers ways to
+parallelize this. One option in particular is simply to replace
+<code>dplyr::group_by()</code> by <code>multidplyr::partition()</code> and <code>dplyr::ungroup()</code> by
+<code>multidplyr::collect()</code>. There are other options where the user can finely
+manage the clusters. Feel free to try this too. See
+<a href="http://blog.aicry.com/multidplyr-dplyr-meets-parallel-processing/index.html">here</a>
+for more information on the <code>multidplyr</code> package.</p>
 <div id="post-calculation-checks" class="section level3">
 <h3>Post-calculation checks</h3>
-<p>Since there is no constraint in the interpolation algorithm, it’s possible that the pipeline produces aberrant values such as negative humidities or relative humidities above 100. Luckily this happens quite rarely. But, still, these mistakes need to be fixed:</p>
+<p>Since there is no constraint in the interpolation algorithm, it’s possible that
+the pipeline produces aberrant values such as negative humidities or relative
+humidities above 100. Luckily this happens quite rarely. But, still, these
+mistakes need to be fixed:</p>
 <pre class="r"><code>out2 &lt;- out %&gt;%
   mutate(rH = ifelse(rH &gt; 100, 100, rH)) %&gt;% 
   mutate_at(vars(aH, rH, Rf, Sh), funs(ifelse(. &lt; 0, 0, .)))</code></pre>
-<p>It appears that rainfall is a variable particularly difficult to interpolate. One reason for that is that this variable varies a lot in space and that our network climatic stations contains too few of them to render such a variation. In such conditions, the best we can do is look for <strong>outliers</strong> among the interpolated-aggregated rainfall values, replace them by missing values and perform <strong>missing values inputation</strong> to replace them. This will be the topic of another post.</p>
+<p>It appears that rainfall is a variable particularly difficult to interpolate.
+One reason for that is that this variable varies a lot in space and that our
+network climatic stations contains too few of them to render such a variation.
+In such conditions, the best we can do is look for <strong>outliers</strong> among the
+interpolated-aggregated rainfall values, replace them by missing values and
+perform <strong>missing values inputation</strong> to replace them. This will be the topic of
+another post.</p>
 </div>
 <div id="a-script" class="section level3">
 <h3>A script</h3>
-<p>Below we put together a script that could be run independently:</p>
+<p>Below we put together a script that could be run independently. This script is
+used to generate the <code>meteo_intagg_2008_2017</code> data frame of the
+<a href="https://choisy.github.io/imhen/"><code>imhen</code></a> package.</p>
 <pre class="r"><code># Parameters -------------------------------------------------------------------
 proj &lt;- &quot;+init=epsg:3405&quot;
 nbcells &lt;- 10000
@@ -366,7 +511,7 @@ cran2 &lt;- setdiff(cran, installed)
 gh2 &lt;- setdiff(gh, installed)
 if (length(cran2) &gt; 0) install.packages(cran2)
 if (length(gh2) &gt; 0) devtools::install_github(gh2)
-for(pkg in c(&quot;sf&quot;, &quot;sp&quot;, &quot;raster&quot;, &quot;sptools&quot;, &quot;mcutils&quot;, &quot;tidyr&quot;, &quot;dplyr&quot;)) library(pkg)
+lapply(c(&quot;sf&quot;, &quot;sp&quot;, &quot;raster&quot;, &quot;sptools&quot;, &quot;mcutils&quot;, &quot;tidyr&quot;, &quot;dplyr&quot;), library, character.only = TRUE)
 
 
 # The data ---------------------------------------------------------------------
@@ -437,10 +582,9 @@ weighted_aggregation &lt;- function(grid, polygons, weights) {
 grid &lt;- make_grid(country, elevation, &quot;elevation&quot;, nbcells)
 weights &lt;- make_weights(popdensity, grid, provinces)
 interpolation &lt;- make_2arg_fct(kriging, kriging_model, proj)
-if (weighted)
+if (weighted) {
   aggregation &lt;- make_2arg_fct(weighted_aggregation, weights)
-else
-  aggregation &lt;- make_2arg_fct(simple_aggregation, &quot;interpolated&quot;)
+} else aggregation &lt;- make_2arg_fct(simple_aggregation, &quot;interpolated&quot;)
 
 
 # Calculations -----------------------------------------------------------------
@@ -463,6 +607,7 @@ out &lt;- meteo %&gt;%
   mutate(year  = as.integer(year),
          month = factor(month, month.name, ordered = TRUE)) %&gt;% 
   arrange(year, province, month) %&gt;% 
+# IV. Post-calculation checks:
   mutate(rH = ifelse(rH &gt; 100, 100, rH)) %&gt;% 
   mutate_at(vars(aH, rH, Rf, Sh), funs(ifelse(. &lt; 0, 0, .)))</code></pre>
 </div>

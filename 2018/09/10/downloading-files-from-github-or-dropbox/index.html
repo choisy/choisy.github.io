@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Hugo 0.49" />
+<meta name="generator" content="Hugo 0.51" />
 
 
 <title>Downloading files from Github or Dropbox - R recipes</title>
@@ -69,7 +69,10 @@
     
 
     <div class="article-content">
-      <p>There are functions in R that work on URL, such as <code>download.file</code> or even <code>read.table</code> (plus many others, including some from dedicated packages such as <code>RCurl</code>). One may thus think that (s)he can just go on a Github or Dropbox webpage, copy the URL of the file their are interested in and paste it directly into R. It’s almost that, except for a little tweak. Indeed the URL that you would copy this way is the URL to the file display on the webpage. What you need instead is the URL of the actual file. And this can be accessed by ending the URL with <code>?raw=1</code> (or, equivalently, <code>?raw=t</code>, <code>?raw=T</code>, <code>?raw=true</code>, <code>?raw=True</code>, <code>?raw=TRUE</code>, etc…). By default, if you copy-paste from Dropbox, your URL will end by <code>?dl=0</code>. What you have to do here is just replace this <code>?dl=0</code> by <code>?raw=1</code> in your URL. Copied from Github, your URL will not end with <code>?dl=0</code> or <code>?raw=1</code>, then just add <code>?raw=1</code> to the end of your URL. Here is an example on how to download and laod an <code>rda</code> file from GitHub:</p>
+      
+
+
+<p>There are functions in R that work on URL, such as <code>download.file</code> or even <code>read.table</code> (plus many others, including some from dedicated packages such as <code>RCurl</code>). One may thus think that (s)he can just go on a Github or Dropbox webpage, copy the URL of the file their are interested in and paste it directly into R. It’s almost that, except for a little tweak. Indeed the URL that you would copy this way is the URL to the file display on the webpage. What you need instead is the URL of the actual file. And this can be accessed by ending the URL with <code>?raw=1</code> (or, equivalently, <code>?raw=t</code>, <code>?raw=T</code>, <code>?raw=true</code>, <code>?raw=True</code>, <code>?raw=TRUE</code>, etc…). By default, if you copy-paste from Dropbox, your URL will end by <code>?dl=0</code>. What you have to do here is just replace this <code>?dl=0</code> by <code>?raw=1</code> in your URL. Copied from Github, your URL will not end with <code>?dl=0</code> or <code>?raw=1</code>, then just add <code>?raw=1</code> to the end of your URL. Here is an example on how to download and laod an <code>rda</code> file from GitHub:</p>
 <pre class="r"><code>download.file(&quot;https://github.com/.../data.rda?raw=1&quot;, &quot;data.rda&quot;)
 load(&quot;data.rda&quot;)
 file.remove(&quot;data.rda&quot;)</code></pre>

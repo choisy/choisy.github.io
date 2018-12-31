@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.51" />
+
+
+<title>Statistical temporal downscaling - R recipes</title>
+<meta property="og:title" content="Statistical temporal downscaling - R recipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">10 min read</span>
+    
+
+    <h1 class="article-title">Statistical temporal downscaling</h1>
+
+    
+    <span class="article-date">2018/12/28</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p>Downscaling is a procedure that consists in infering <strong>high-resolution</strong>
+information from <strong>low-resolution</strong> data. This can be performed either in
+<strong>time</strong> or, more commonly, in <strong>space</strong>. Methodologically, it can be performed
+statistically (<strong>statistical downscaling</strong>) based on observed relationships
+between the variables of our data or mechanistically (often called <strong>dynamical
+downscaling</strong>), using a mechanistical model of the process generating the data.
+Such techniques are widely used for example in meteorology and climatology in
+order to derive local-scale weather and climate from <strong>Global Climate Models</strong>
+(GCM) data that have a typical resolution of 50 x 50 km. See for example the
+<a href="http://www.cordex.org">CORDEX</a> project. Downscaling is not easy and,
+unfortunately, very few tools, if any, exist in R to for that (see for example
+this StackOverflow
+<a href="https://stats.stackexchange.com/questions/237033/how-to-downscale-daily-weather-forecasts-to-be-forecasts-every-six-hours">post</a>).
+Here I use a very simple example of statistical temporal downscaling based on
+the use of linear models in order to illustrate what are the difficulties and
+when such methods can and shouldn’t be used.</p>
+<p>Often downscaling is misunderstood as a problem of <strong>interpolation</strong>. Even
+though there are common aspects of the two techniques, the problems of
+interpolation and downscaling are radically different and downscaling is
+substantially more difficult than interpolation. To illustrate this, let’s
+consider a simple example using measures of temperature as a function of time.
+Imagine that you measure temperature once per quarter, on the 15<sup>th</sup> of
+February, the 15<sup>th</sup> of May, the 15<sup>th</sup> of August and the 15<sup>th</sup> of November. If
+you want to infer the temperatures on the 15<sup>th</sup> of the other months from these
+4 measures, you can use an interpolation technique which consist in fitting
+these data to a model, either statistial such as a linear regression, or
+mechanistical. For example, in base R, the function
+<a href="https://www.rdocumentation.org/packages/stats/versions/3.5.1/topics/approxfun"><code>approx()</code></a>
+allows to perform linear interpolation and the function
+<a href="https://www.rdocumentation.org/packages/stats/versions/3.5.2/topics/splinefun"><code>spline()</code></a>
+allows to perform spline interpolation. See the examples of these functions to
+get a sense of what they are doing.</p>
+<p>Let’s now imagine a slightly different situation: instead of having measures of
+temperatures at one time point per quarter, you have the average temperature
+per quarter and you would like, as before, to get an estimate of the
+temperature on the 15<sup>th</sup> of every month. Compared to the above situation of
+infering values at certain time points from values measured at other time
+points, here we want to infer values at certain time points from <strong>aggregates</strong>
+of values at other time points. Thus, instead of guessing values in between
+measured values, the problem here is to guess the values that where used to
+generate the aggregated values we have at hand. The type of aggregation could
+be the mean, as in our example, but it could be something else, cumulative sum
+for example. The figure below illustrates the differences between interpolation
+and downscaling.</p>
+<div style="text-align:center">
+<p><img src = "/images/interpolation_vs_downscaling.png" width = "700"/></p>
+</div>
+<p>Whatever technique we use to perform downscaling, we generally want to comply to
+two constraints:</p>
+<ul>
+<li><p>within each time interval, the aggregate of the infered values should be equal
+to the initial aggregate datum;</p></li>
+<li><p>between all the time intervals, there should be a transition as smooth as
+possible.</p></li>
+</ul>
+<p>Here, <em>time intervals</em> refers to the time intervals to which the initial
+aggregate data correspond, a quarter for example in our above example. In the
+case of spatial downscaling (2 dimensions instead of 1), we would probably speak
+of pixel instead of interval. These two constraints can be achieved easily with
+the use of linear models. More sophisticated methods such as spline would do
+better job but also be more complicated. For the purpose of illustrating the
+concepts, we will thus stick to the simplest method and we will assume that the
+aggregates are means (we’ll see that a cumulative sum won’t be much more
+difficult).</p>
+<div id="step-by-step-r-code" class="section level2">
+<h2>Step-by-step R code</h2>
+<p>We want to design a function that takes as inputs two vectors, one (<code>y</code>) of
+aggregate values, the other one (<code>x</code>) being the time coordinates of the middle
+of the time intervals to which the aggregates correspond. For the sake of
+illustration we can consider the concrete example were we have the rates of
+change of a population averaged by year and we want to downscale these data
+so that we can express the rates of change of this population averaged by
+semester. The first step consists in identifying the limits of the intervals to
+which the aggregates correspond to, as materialized by the red vertical lines on
+the figure below.</p>
+<div style="text-align:center">
+<p><img src = "/images/downscaling.png" width = "350"/></p>
+</div>
+<p>The function below, used with the option <code>with_borders = TRUE</code>, allows to do so:</p>
+<pre class="r"><code>centers &lt;- function(x, with_borders = FALSE) {
+  ctrs &lt;- x[-1] - diff(x) / 2
+  if (with_borders)
+    return(c(2 * x[1] - ctrs[1], ctrs, 2 * tail(x, 1) - tail(ctrs, 1)))
+  ctrs
+}</code></pre>
+<p>To meet the first constraint, we simply need, on each of the intervals, to
+define a linear model that goes through the blue dots of the above figure.
+Furthermore, we know that through any two dots goes one and only one line. Thus,
+the second contraint is easy to address too as long as we know, for each
+interval, the <code>y</code> value of the linear model on the previous interval at the
+limit between the two intervals (vertical red lines on the figure above). We can
+thus design a <strong>recursive algorithm</strong> that estimates linear models for each
+interval from left to right and the for-loop below does the job:</p>
+<pre class="r"><code>nb &lt;- length(x)
+the_centers &lt;- centers(x, TRUE)
+y2 &lt;- c(y2_0, rep(NA, nb))
+for(i in 1:nb) {
+  x_val &lt;- c(the_centers[i], x[i])
+  y_val &lt;- c(y2[i], y[i])
+  m &lt;- lm(y_val ~ x_val)
+  y2[i + 1] &lt;- predict(m, data.frame(x_val = the_centers[i + 1]))
+}</code></pre>
+<p>where <code>nb</code> is the number of intervals and <code>the_centers</code> is an output of the
+<code>centers()</code> function. The problem however concerns the first of these intervals
+for which, by definition, we don’t have a previous interval and thus no left
+point through which to make our linear model go through. Let’s call <code>y2_0</code> the
+<code>y</code> coordinate of this initial left point. In principle, we could choose any
+value for <code>y2_0</code>. However, in order to meet our second constraint, let’s instead
+consider applying an <strong>optimization algorithm</strong> in order to find the <code>y2_0</code> that
+makes the transitions between intervals as smooth as possible. For that, let’s
+define <strong>smoothness</strong> as the sum of the absolute differences between the slopes
+of adjacent linear models. The following function computes such a statistic from
+a list of linear models:</p>
+<pre class="r"><code>smoothness &lt;- function(list_of_models) {
+  require(magrittr)
+  list_of_models %&gt;% 
+    sapply(get_slope) %&gt;%
+    diff() %&gt;% 
+    abs() %&gt;% 
+    sum()
+}</code></pre>
+<p>where the function <code>get_slope()</code> would be defined by the following code:</p>
+<pre class="r"><code>get_slope &lt;- function(model) coef(model)[2]</code></pre>
+<p>What we need then to perform this optimization, is a function that takes a value
+for <code>y2_0</code> as an input and returns a list of models. The following function
+built around the above for-loop does the job:</p>
+<pre class="r"><code>make_models &lt;- function(y2_0) {
+  models &lt;- vector(&quot;list&quot;, nb)
+  y2 &lt;- c(y2_0, rep(NA, nb))
+  for(i in 1:nb) {
+    x_val &lt;- c(the_centers[i], x[i])
+    y_val &lt;- c(y2[i], y[i])
+    models[[i]] &lt;- m &lt;- lm(y_val ~ x_val)
+    y2[i + 1] &lt;- predict(m, data.frame(x_val = the_centers[i + 1]))
+  }
+  models
+}</code></pre>
+<p>As we can see, this funtion returns a list of models that we can then feed to
+<code>smoothness()</code> in order to find the value of smoothness that corresponds to our
+choice of <code>y2_0</code>. And the combination of <code>make_models()</code> and <code>smoothness()</code> can
+be used by the base R <code>optimize()</code> function in order to find the optimal value
+of <code>y2_0</code> over a given interval that minimize the global smoothness. The problem
+now is to define the interval to search in. An option could be given by the
+following function:</p>
+<pre class="r"><code>make_interval &lt;- function(x) {
+  the_range &lt;- range(x)
+  c(-1, 1) * diff(the_range) + the_range
+}</code></pre>
+<p>that basically triples the range of a variable equally each side of its current
+range. We can now look for the optimal value of <code>y2_0</code> by the following call:</p>
+<pre class="r"><code>optimize(function(x) smoothness(make_models(x)), make_interval(y))$minimum</code></pre>
+<p>Once we have our optimal linear models on each of our intervals, the last step
+consists in infering the new <code>y</code> values at a number of <code>x</code> values and this step
+requires an additional little precaution in order to ensure that the first of
+the two constraints listed above is met. Let’s call <code>n</code> the number of time
+points per time interval at which we wish to infer <code>y</code> values. In case where we
+want these points to be spread over each interval so that they represent the
+middles of <code>n</code> equal-duration sub-intervals, the <code>x</code> coordinates of these points
+can be computed by the following function:</p>
+<pre class="r"><code>make_new_x &lt;- function(x, n) {
+  the_centers &lt;- centers(x, TRUE)
+  bys &lt;- diff(the_centers) / n
+  Map(seq, from = the_centers[seq_along(x)] + bys / 2, by = bys, le = n)
+}</code></pre>
+<p>This function is basically a mapping of <code>seq()</code> on its parameters <code>from</code> and
+<code>by</code>. Note that in the particular case where the initial <code>x</code> values are
+regularly spaced, then all the values of the <code>bys</code> vector will be the same.</p>
+<p>The final step will be a call to the <code>predict()</code> function in order to produce
+the infered <code>y</code> values:</p>
+<pre class="r"><code>unlist(Map(predict,
+           models,
+           lapply(make_new_x(x, n), function(x) data.frame(x_val = x))))</code></pre>
+<p>Note that the elements of the list outputed from <code>make_new_x()</code> are converted
+into a <code>data.frame</code> in order to meet the requirement of the <code>predict()</code>
+function.</p>
+</div>
+<div id="wrapping-into-one-function" class="section level2">
+<h2>Wrapping into one function</h2>
+<p>All the code above can be wrapped into one single function of three arguments:
+<code>y</code> the data of aggregated values, <code>x</code> the centers of the (time) intervals to
+which these aggregated values correspond, and <code>n</code> the number of new <code>y</code> values
+we want to generate within each of these intervals:</p>
+<pre class="r"><code>downscale &lt;- function(y, x, n) {
+  require(magrittr)
+  
+  nb &lt;- length(x)
+  the_centers &lt;- centers(x, TRUE)
+
+# The function that makes the list of linear models (one per interval).
+# Note that it uses `nb` and `the_centers` defined above.
+  make_models &lt;- function(y2_0) {
+    models &lt;- vector(&quot;list&quot;, nb)
+    y2 &lt;- c(y2_0, rep(NA, nb))
+    for(i in 1:nb) {
+      x_val &lt;- c(the_centers[i], x[i])
+      y_val &lt;- c(y2[i], y[i])
+      models[[i]] &lt;- m &lt;- lm(y_val ~ x_val)
+      y2[i + 1] &lt;- predict(m, data.frame(x_val = the_centers[i + 1]))
+    }
+    models
+  }
+
+# Using the function `smoothness()` to find the best `y2_0` value:
+  best_y2_0 &lt;- optimize(
+    function(x) smoothness(make_models(x)),
+    make_interval(y)
+  )$minimum
+
+# Generating the list of models with the best `y2_0` value:
+  models &lt;- make_models(best_y2_0)
+  
+# Now that everything is ready:
+  x %&gt;%
+    make_new_x(n) %&gt;% 
+    lapply(function(x) data.frame(x_val = x)) %&gt;% 
+    Map(predict, models, .) %&gt;% 
+    unlist()
+}</code></pre>
+</div>
+<div id="testing-the-function" class="section level2">
+<h2>Testing the function:</h2>
+<p>Let’s now test the function <code>downscale()</code>. Let’s consider 10 time intervals of
+centers from 1 to 10 and let’s say we want to infer 12 values per interval:</p>
+<pre class="r"><code>x &lt;- 1:10
+n &lt;- 12</code></pre>
+<p>The limits between these intervals are</p>
+<pre class="r"><code>the_centers &lt;- centers(x, TRUE)</code></pre>
+<p>And the <code>x</code> coordinates of the infered values will be</p>
+<pre class="r"><code>new_x &lt;- unlist(make_new_x(x, n))</code></pre>
+<p>Let’s start with a simple example where the initial aggregate data are values
+from 1 to 10:</p>
+<pre class="r"><code>y1 &lt;- 1:10
+y1b &lt;- downscale(y1, x, n)
+plot(new_x, y1b)
+points(x, y1, col = &quot;blue&quot;, pch = 19)
+abline(v = the_centers, col = &quot;red&quot;)</code></pre>
+<p><img src="/post/2018-12-28-statistical-temporal-downscaling_files/figure-html/unnamed-chunk-14-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>On this figure the vertical red lines show the limits of the intervals, the blue
+dots show the aggregated values available for each of these intervals, and the
+black dots show the infered disaggregated values within each interval. The
+figure shows that the continuity between intervals is respected (second of the
+above-listed constraints). Let’s now check that the first constraint is also
+well respected (i.e. that the aggregates of the infered values are equal to the
+initial aggregate data):</p>
+<pre class="r"><code>plot(y1, colMeans(matrix(y1b, n)),
+     xlab = &quot;initial aggregate data&quot;,
+     ylab = &quot;aggregates of infered values&quot;)
+abline(0, 1)</code></pre>
+<p><img src="/post/2018-12-28-statistical-temporal-downscaling_files/figure-html/unnamed-chunk-15-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>That works fine! Let’s now consider a slightly more complicated example that
+scrambles the values of <code>y</code>:</p>
+<pre class="r"><code>y2 &lt;- sample(y1)
+y2b &lt;- downscale(y2, x, n)
+plot(new_x, y2b)
+points(x, y2, col = &quot;blue&quot;, pch = 19)
+abline(v = the_centers, col = &quot;red&quot;)</code></pre>
+<p><img src="/post/2018-12-28-statistical-temporal-downscaling_files/figure-html/unnamed-chunk-16-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot(y2, colMeans(matrix(y2b, n)),
+     xlab = &quot;initial aggregate data&quot;,
+     ylab = &quot;aggregates of infered values&quot;)
+abline(0, 1)</code></pre>
+<p><img src="/post/2018-12-28-statistical-temporal-downscaling_files/figure-html/unnamed-chunk-16-2.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>Works well too!</p>
+</div>
+<div id="conclusions" class="section level2">
+<h2>Conclusions</h2>
+<p>The function <code>downscale()</code> shows a very simple example of statistical
+temporal (i.e. one dimension) downscaling, using linear models. This is
+probably the simplest example of downscaling. This function could be
+complexified in basically 2 non-incompatible directions: adding dimensions
+(to consider spatial downscaling for example) and considering more complex
+models. The latter can be done either by still considering statistical models
+such as spline smoothing for example, or by considering mechanistical
+(dynamical) models. The second option will provide a less general tool and will
+require some domain knowledge.</p>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+
