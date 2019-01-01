@@ -72,21 +72,44 @@
       
 
 
-<p>When you create an R data package, it may happen that the data is too big to be hosted on CRAN that has a package size limit of 5 MB or even on Github that has a repository size limit of 1 GB and a file size limit of 100 MB. Here I show how to build such a package in a way that leaves the data on another server and then lets the user download the data when (s)he needs it for the first time. The downloadoing process copy the data in the installed package file hierarchy so that the user will not have to download it again for subsequent uses.</p>
-<p>In the example I show below I simply use dropbox for the data server. This is particularly convenient when the local repository of the package is synchronized with dropbox. In that case, the operation basically consists in (i) making Git ignore the data and (ii) allowing the user to download the data from dropbox when (s)he needs it for the first time.</p>
+<p>When you create an R data package, it may happen that the data is too big to be
+hosted on CRAN that has a package size limit of 5 MB or even on Github that has
+a repository size limit of 1 GB and a file size limit of 100 MB. Here I show how
+to build such a package in a way that leaves the data on another server and then
+lets the user download the data when (s)he needs it for the first time. The
+downloadoing process copy the data in the installed package file hierarchy so
+that the user will not have to download it again for subsequent uses.</p>
+<p>In the example I show below I simply use dropbox for the data server. This is
+particularly convenient when the local repository of the package is synchronized
+with dropbox. In that case, the operation basically consists in (i) making Git
+ignore the data and (ii) allowing the user to download the data from dropbox
+when (s)he needs it for the first time.</p>
 <ul>
-<li>In your package file hierarchy, create a <code>data-raw</code> directory with the following structure:</li>
+<li>In your package file hierarchy, create a <code>data-raw</code> directory with the following
+structure:</li>
 </ul>
 <pre class="r"><code>data-raw
        |-data_creation.R
        |-dropbox
                |-data-raw
                |-extdata</code></pre>
-<p>where <code>data-raw/</code> is created, following Wickham’s suggestion, by the following command</p>
+<p>where <code>data-raw/</code> is created, following Wickham’s suggestion, by the following
+command</p>
 <pre class="r"><code>&gt; devtools::use_data_raw()</code></pre>
-<p>This directory contains raw data that are used to generate the data that will be include in the package. This directory will not be included in the bundled version of the package. Also, still following Wickham’s suggestion, this <code>raw-data/</code> contains an R script <code>data-creation.R</code> that documents how the clean version of the data that will be included in the package is created from these raw data. What we add here to this file structure, is the sub-directory <code>dropbox/</code> that will contain the data that will not be included in the bundled version of the package but instead will be downloaded by the user when (s)he first need them. So will have to make Git ignore this directory, at the bash command line:</p>
+<p>This directory contains raw data that are used to generate the data that will be
+include in the package. This directory will not be included in the bundled
+version of the package. Also, still following Wickham’s suggestion, this
+<code>raw-data/</code> contains an R script <code>data-creation.R</code> that documents how the clean
+version of the data that will be included in the package is created from these
+raw data. What we add here to this file structure, is the sub-directory
+<code>dropbox/</code> that will contain the data that will not be included in the bundled
+version of the package but instead will be downloaded by the user when (s)he
+first need them. So will have to make Git ignore this directory, at the bash
+command line:</p>
 <pre class="bash"><code>$ cat &quot;data-raw/dropbox&quot; &gt;&gt; .gitignore </code></pre>
-<p>or manually. Then, create a <code>get*</code> function. This function will test whether the data is already present in the package file hierarchy. If not, it will ask the user when (s)he wants to download and install it</p>
+<p>or manually. Then, create a <code>get*</code> function. This function will test whether the
+data is already present in the package file hierarchy. If not, it will ask the
+user when (s)he wants to download and install it</p>
 <pre class="r"><code>&gt; getsrtm &lt;- function() {
 +   if (!file.exists(paste0(installed.packages()[&quot;srtmVN&quot;, &quot;LibPath&quot;], &quot;/srtmVN/extdata/srtm90.tif&quot;))) {
 +     message(&quot;SRTM data are not on disk.&quot;)

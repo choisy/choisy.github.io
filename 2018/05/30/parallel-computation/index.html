@@ -80,16 +80,21 @@
 <ul>
 <li><code>detectCores</code> which detects the number of CPU cores;</li>
 <li><code>makeCluster</code> which creates a cluster of a given number of cores;</li>
-<li><code>clusterEvalQ</code> which evaluates a literal expression on each cluster node. It is a parallel version of <code>evalq</code>.</li>
-<li><code>clusterExport</code> which assigns the values on the master R process of the variables named in its named list argument to variables of the same names in the global environment (aka workspace) of each node;</li>
+<li><code>clusterEvalQ</code> which evaluates a literal expression on each cluster node. It
+is a parallel version of <code>evalq</code>.</li>
+<li><code>clusterExport</code> which assigns the values on the master R process of the
+variables named in its named list argument to variables of the same names in the
+global environment (aka workspace) of each node;</li>
 <li><code>parSapply</code> parallel version of <code>sapply</code>.</li>
 <li><code>stopCluster</code> which shuts done the cluster.</li>
 </ul>
-<p>The first step is to create a cluster. It’s good practice to let one core available, in case:</p>
+<p>The first step is to create a cluster. It’s good practice to let one core
+available, in case:</p>
 <pre class="r"><code>&gt; cl &lt;- makeCluster(detectCores() - 1)</code></pre>
 <p>Then, we need to populate each core of the cluster with any package we may need:</p>
 <pre class="r"><code>&gt; clusterEvalQ(cl, library(package1, package2))</code></pre>
-<p>as well as any object (data and functions) we may need from the current workspace, for example:</p>
+<p>as well as any object (data and functions) we may need from the current
+workspace, for example:</p>
 <pre class="r"><code>&gt; clusterExport(cl, c(&quot;data1&quot;, &quot;data2&quot;, &quot;fct1&quot;, &quot;fct2&quot;))</code></pre>
 <p>Then, you ready to launch your calculations with <code>nb</code> replicates:</p>
 <pre class="r"><code>&gt; out &lt;- parSapply(cl, 1:nb, function(x) {

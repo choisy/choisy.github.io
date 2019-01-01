@@ -74,18 +74,22 @@
 
 <div id="packages-needed" class="section level2">
 <h2>Packages needed</h2>
-<p>Install these packages if they are not already installed on your system, then load them:</p>
+<p>Install these packages if they are not already installed on your system, then
+load them:</p>
 <pre class="r"><code>&gt; library(sp)        # plot, points, spsample
 &gt; library(purrr)     # map2
 &gt; library(dplyr)     # %&gt;%, mutate
 &gt; library(rgeos)     # gIntersection
 &gt; library(raster)    # plot, buffer
 &gt; library(geosphere) # areaPolygon</code></pre>
-<p>We can compute statistics in buffer zones around specific points. For that we need spatial data in raster format. These data can be qualitative (e.g. land cover) or quantitative (e.g elevation or population size).</p>
+<p>We can compute statistics in buffer zones around specific points. For that we
+need spatial data in raster format. These data can be qualitative (e.g. land
+cover) or quantitative (e.g elevation or population size).</p>
 </div>
 <div id="defining-buffers-zone-and-their-areas" class="section level2">
 <h2>Defining buffers zone and their areas</h2>
-<p>Let’s choose 10 points (cases) at random inside the polygon of Vietnam. First the polygon of Vietnam:</p>
+<p>Let’s choose 10 points (cases) at random inside the polygon of Vietnam. First
+the polygon of Vietnam:</p>
 <pre class="r"><code>&gt; # devtools::install_github(&quot;choisy/gadmVN&quot;)
 &gt; # devtools::install_github(&quot;choisy/sptools&quot;)
 &gt; vn &lt;- gadmVN::gadm(level = &quot;country&quot;) %&gt;% sptools::largest_polygons()</code></pre>
@@ -112,12 +116,14 @@
 &gt; plot(vn, col = adjustcolor(&quot;blue&quot;, .1), add = TRUE)
 &gt; box(bty = &quot;o&quot;)</code></pre>
 <p><img src="/post/2018-01-22-spatial-buffers_files/figure-html/unnamed-chunk-9-1.png" width="407.736" style="display: block; margin: auto;" /></p>
-<p>For that reason, we first need to compute the intersection of the buffers with the polygon of Vietnam before we can compute the areas of these buffers:</p>
+<p>For that reason, we first need to compute the intersection of the buffers with
+the polygon of Vietnam before we can compute the areas of these buffers:</p>
 <pre class="r"><code>&gt; (areas &lt;- sapply(seq_along(buffers),
 +                  function(x) areaPolygon(gIntersection(vn, buffers[x])) / 10^6))
  [1] 1256.572 1256.572 1256.572 1256.572 1256.572 1256.572 1256.572
  [8] 1143.787 1256.572 1256.572</code></pre>
-<p>Note that the area of the 8th buffer is slightly less that the areas of the other buffers.</p>
+<p>Note that the area of the 8th buffer is slightly less that the areas of the
+other buffers.</p>
 </div>
 <div id="quantitative-statistics" class="section level2">
 <h2>Quantitative statistics</h2>
@@ -131,13 +137,15 @@
 <pre class="r"><code>&gt; (popsizes &lt;- raster::extract(wpvn, cases, buffer = radius) %&gt;% sapply(sum, na.rm = TRUE))
  [1] 107678.43  26090.01 117261.68 431477.35  89729.25 460979.95 337982.83
  [8]  78877.60 348799.43 510036.65</code></pre>
-<p>To get the population density (/ km2) in this buffer zones, we just need to divide this values by the areas:</p>
+<p>To get the population density (/ km2) in this buffer zones, we just need to
+divide this values by the areas:</p>
 <pre class="r"><code>&gt; (densities &lt;- popsizes / areas)
  [1]  85.69220  20.76284  93.31870 343.37648  71.40795 366.85512 268.97207
  [8]  68.96180 277.58009 405.89521</code></pre>
 <div id="a-pipeline-version" class="section level3">
 <h3>A pipeline version</h3>
-<p>Let’s describe here a pipeline version of the code above. Let’s imagine that we start from a matrix of coordinates:</p>
+<p>Let’s describe here a pipeline version of the code above. Let’s imagine that we
+start from a matrix of coordinates:</p>
 <pre class="r"><code>&gt; (coord_mat &lt;- coordinates(cases))
              x         y
  [1,] 105.3766 19.604040
@@ -150,7 +158,8 @@
  [8,] 104.6568 22.703839
  [9,] 105.1182  9.350618
 [10,] 105.4021  9.883708</code></pre>
-<p>The pipeline below used the above-defined objects <code>radius</code>, <code>vn</code> and <code>wpvn</code>, and also the projection <code>llCRS</code> defined below:</p>
+<p>The pipeline below used the above-defined objects <code>radius</code>, <code>vn</code> and <code>wpvn</code>, and
+also the projection <code>llCRS</code> defined below:</p>
 <pre class="r"><code>&gt; llCRS &lt;- CRS(&quot;+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0&quot;)</code></pre>
 <p>Let’s now then define 2 utilitary functions:</p>
 <pre class="r"><code>&gt; calc_area &lt;- function(sp, radius, polygon) {
@@ -254,7 +263,8 @@
 &gt; plot(vn, add = TRUE)
 &gt; box(bty = &quot;o&quot;)</code></pre>
 <p><img src="/post/2018-01-22-spatial-buffers_files/figure-html/unnamed-chunk-25-1.png" width="407.736" style="display: block; margin: auto;" /></p>
-<p>We can calculate the percentage of land cover for each buffer by using this function:</p>
+<p>We can calculate the percentage of land cover for each buffer by using this
+function:</p>
 <pre class="r"><code>&gt; calc_globcov &lt;- function(sp, radius, raster) {
 +   raster::extract(raster, sp, buffer = radius) %&gt;% 
 +     table() %&gt;% 

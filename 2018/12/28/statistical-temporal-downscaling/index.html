@@ -182,10 +182,10 @@ point through which to make our linear model go through. Let’s call <code>y2_0
 value for <code>y2_0</code>. However, in order to meet our second constraint, let’s instead
 consider applying an <strong>optimization algorithm</strong> in order to find the <code>y2_0</code> that
 makes the transitions between intervals as smooth as possible. For that, let’s
-define <strong>smoothness</strong> as the sum of the absolute differences between the slopes
+define <strong>unsmoothness</strong> as the sum of the absolute differences between the slopes
 of adjacent linear models. The following function computes such a statistic from
 a list of linear models:</p>
-<pre class="r"><code>smoothness &lt;- function(list_of_models) {
+<pre class="r"><code>unsmoothness &lt;- function(list_of_models) {
   require(magrittr)
   list_of_models %&gt;% 
     sapply(get_slope) %&gt;%
@@ -210,19 +210,20 @@ built around the above for-loop does the job:</p>
   models
 }</code></pre>
 <p>As we can see, this funtion returns a list of models that we can then feed to
-<code>smoothness()</code> in order to find the value of smoothness that corresponds to our
-choice of <code>y2_0</code>. And the combination of <code>make_models()</code> and <code>smoothness()</code> can
+<code>unsmoothness()</code> in order to find the value of unsmoothness that corresponds to our
+choice of <code>y2_0</code>. And the combination of <code>make_models()</code> and <code>unsmoothness()</code> can
 be used by the base R <code>optimize()</code> function in order to find the optimal value
-of <code>y2_0</code> over a given interval that minimize the global smoothness. The problem
+of <code>y2_0</code> over a given interval that minimize the unsmoothness. The problem
 now is to define the interval to search in. An option could be given by the
 following function:</p>
-<pre class="r"><code>make_interval &lt;- function(x) {
-  the_range &lt;- range(x)
-  c(-1, 1) * diff(the_range) + the_range
+<pre class="r"><code>range2 &lt;- function(..., n = 1, na.rm = FALSE) {
+  the_range &lt;- range(..., na.rm = na.rm)
+  n * c(-1, 1) * diff(the_range) / 2 + mean(the_range)
 }</code></pre>
-<p>that basically triples the range of a variable equally each side of its current
-range. We can now look for the optimal value of <code>y2_0</code> by the following call:</p>
-<pre class="r"><code>optimize(function(x) smoothness(make_models(x)), make_interval(y))$minimum</code></pre>
+<p>that is basically a wrapper around the base R function <code>range()</code> that allows to
+reduce or expand the range. We can now look for the optimal value of <code>y2_0</code> by
+the following call:</p>
+<pre class="r"><code>optimize(function(x) unsmoothness(make_models(x)), range2(y, n = 3))$minimum</code></pre>
 <p>Once we have our optimal linear models on each of our intervals, the last step
 consists in infering the new <code>y</code> values at a number of <code>x</code> values and this step
 requires an additional little precaution in order to ensure that the first of
@@ -231,7 +232,7 @@ points per time interval at which we wish to infer <code>y</code> values. In cas
 want these points to be spread over each interval so that they represent the
 middles of <code>n</code> equal-duration sub-intervals, the <code>x</code> coordinates of these points
 can be computed by the following function:</p>
-<pre class="r"><code>make_new_x &lt;- function(x, n) {
+<pre class="r"><code>subsegment_center &lt;- function(x, n) {
   the_centers &lt;- centers(x, TRUE)
   bys &lt;- diff(the_centers) / n
   Map(seq, from = the_centers[seq_along(x)] + bys / 2, by = bys, le = n)
@@ -243,7 +244,7 @@ regularly spaced, then all the values of the <code>bys</code> vector will be the
 the infered <code>y</code> values:</p>
 <pre class="r"><code>unlist(Map(predict,
            models,
-           lapply(make_new_x(x, n), function(x) data.frame(x_val = x))))</code></pre>
+           lapply(subsegment_center(x, n), function(x) data.frame(x_val = x))))</code></pre>
 <p>Note that the elements of the list outputed from <code>make_new_x()</code> are converted
 into a <code>data.frame</code> in order to meet the requirement of the <code>predict()</code>
 function.</p>
@@ -274,10 +275,10 @@ we want to generate within each of these intervals:</p>
     models
   }
 
-# Using the function `smoothness()` to find the best `y2_0` value:
+# Using the function `unsmoothness()` to find the best `y2_0` value:
   best_y2_0 &lt;- optimize(
-    function(x) smoothness(make_models(x)),
-    make_interval(y)
+    function(x) unsmoothness(make_models(x)),
+    range2(y, n = 3)
   )$minimum
 
 # Generating the list of models with the best `y2_0` value:
@@ -285,7 +286,7 @@ we want to generate within each of these intervals:</p>
   
 # Now that everything is ready:
   x %&gt;%
-    make_new_x(n) %&gt;% 
+    subsegment_center(n) %&gt;% 
     lapply(function(x) data.frame(x_val = x)) %&gt;% 
     Map(predict, models, .) %&gt;% 
     unlist()
@@ -300,7 +301,7 @@ n &lt;- 12</code></pre>
 <p>The limits between these intervals are</p>
 <pre class="r"><code>the_centers &lt;- centers(x, TRUE)</code></pre>
 <p>And the <code>x</code> coordinates of the infered values will be</p>
-<pre class="r"><code>new_x &lt;- unlist(make_new_x(x, n))</code></pre>
+<pre class="r"><code>new_x &lt;- unlist(subsegment_center(x, n))</code></pre>
 <p>Let’s start with a simple example where the initial aggregate data are values
 from 1 to 10:</p>
 <pre class="r"><code>y1 &lt;- 1:10
@@ -346,7 +347,12 @@ complexified in basically 2 non-incompatible directions: adding dimensions
 models. The latter can be done either by still considering statistical models
 such as spline smoothing for example, or by considering mechanistical
 (dynamical) models. The second option will provide a less general tool and will
-require some domain knowledge.</p>
+require some domain knowledge. The functions <code>centers()</code>, <code>range2()</code>,
+<code>subsegment_center()</code> and <code>downscale()</code> are available in the package
+<a href="https://github.com/choisy/mcstats"><code>mcstats</code></a>. To install it locally, just
+type:</p>
+<pre class="r"><code># install.packages(&quot;devtools&quot;)
+devtools::install_github(&quot;choisy/mcstats&quot;)</code></pre>
 </div>
 
     </div>
