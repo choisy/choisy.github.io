@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.51" />
+
+
+<title>Writing exercises in R - R recipes</title>
+<meta property="og:title" content="Writing exercises in R - R recipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">6 min read</span>
+    
+
+    <h1 class="article-title">Writing exercises in R</h1>
+
+    
+    <span class="article-date">2019/02/18</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p>The <strong>literate programming</strong> ability of Rmarkdown makes it a great language for
+<strong>reproducible research</strong>. It is also used for many other applications (such as
+writing books, websites, blogs, apps, etc…). One of them that I’ve found
+particularly useful is for teaching, when the tutor needs to write exercises of
+which (s)he wants to control the visibility of the solutions in a way or another.
+Here I list two options that I’ve found particularly useful. For the first one,
+the tutor wants to keep full control of the solution visibility. In the second
+one, the tutor on the contrary gives the control of the solution visibility to
+the student.</p>
+<p>The way I work is that I write the Rmarkdown document, then compile it to an
+HTML document that I host on a web server, of which I provide the URL to the
+student.</p>
+<div id="option-1-the-tutor-controls-the-visibility-of-the-solutions" class="section level2">
+<h2>Option 1: the tutor controls the visibility of the solutions</h2>
+<p>When I, as the tutor, want to keep full control of the visibility of the
+solution, I do it thanks to the chunk option <code>include</code> in the Rmarkdown
+document. For example, the following Rmarkdown code:</p>
+<pre class="markdown"><code>**Exercise 1:** Define `x` and `y` vectors as below
+```{r exercise_1}
+set.seed(123523458)
+x &lt;- 1:10
+y &lt;- sample(x)
+```
+and plot `y` as a function of `x`.
+
+**Solution to Exercise 1:**
+```{r solution_1, include = FALSE}
+plot(x, y)
+```</code></pre>
+<p>will produce the following HTML output where the solution is not visible:</p>
+<p><strong>Exercise 1:</strong> Define <code>x</code> and <code>y</code> vectors as below</p>
+<pre class="r"><code>set.seed(123523458)
+x &lt;- 1:10
+y &lt;- sample(x)</code></pre>
+<p>and plot <code>y</code> as a function of <code>x</code>.</p>
+<p><strong>Solution to Exercise 1:</strong></p>
+<p>Now, if I decide to show the solution, I just have to switch the <code>include</code>
+chunck option from <code>FALSE</code> to <code>TRUE</code>:</p>
+<pre class="markdown"><code>**Exercise 1:** Define `x` and `y` vectors as below
+```{r exercise_1}
+set.seed(123523458)
+x &lt;- 1:10
+y &lt;- sample(x)
+```
+and plot `y` as a function of `x`.
+
+**Solution to Exercise 1:**
+```{r solution_1, include = TRUE}
+plot(x, y)
+```</code></pre>
+<p>which produces produces the following HTML output:</p>
+<p><strong>Exercise 1:</strong> Define <code>x</code> and <code>y</code> vectors as below</p>
+<pre class="r"><code>set.seed(123523458)
+x &lt;- 1:10
+y &lt;- sample(x)</code></pre>
+<p>and plot <code>y</code> as a function of <code>x</code>.</p>
+<p><strong>Solution to Exercise 1:</strong></p>
+<pre class="r"><code>plot(x, y)</code></pre>
+<p><img src="/post/2019-02-18-writing-exercises-in-r_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Et voilà!</p>
+<div id="showing-several-solutions-at-once" class="section level3">
+<h3>Showing several solutions at once</h3>
+<p>You may have several exercises, each with its solution. If you decide to show
+solutions at once, all you have to do is define a boolean variable and use the
+value of this variable for the value of the <code>include</code> option of all the chuncks
+you want to control the same way. Good practice is to define the boolean
+variable in a chunk at the beginning of the Rmarkdown document that contains all
+the settings of the document. Here is an example:</p>
+<pre class="markdown"><code>```{r settings, include = FALSE}
+switch1 &lt;- FALSE
+```
+
+**Exercise 1:** Define `x` and `y` vectors as below
+```{r exercise_1}
+set.seed(123523458)
+x &lt;- 1:10
+y &lt;- sample(x)
+```
+and plot `y` as a function of `x`.
+
+**Solution to Exercise 1:**
+```{r solution_1, include = switch1}
+plot(x, y)
+```
+
+**Exercise 2:** Make a linear model `y` as a function of `x`.
+
+**Solution to Exercise 2:**
+```{r solution_2, include = switch1}
+model &lt;- lm(y ~ x)
+```
+
+**Exercise 3:** Make a plot of `y` as a function of `x`, together with the 
+linear model
+
+**Solution to Exercise 3:**
+```{r solution_3, include = FALSE}
+plot(x, y)
+abline(model)
+```</code></pre>
+<p>That produces the following HTML output:</p>
+<p><strong>Exercise 1:</strong> Define <code>x</code> and <code>y</code> vectors as below</p>
+<pre class="r"><code>set.seed(123523458)
+x &lt;- 1:10
+y &lt;- sample(x)</code></pre>
+<p>and plot <code>y</code> as a function of <code>x</code>.</p>
+<p><strong>Solution to Exercise 1:</strong></p>
+<p><strong>Exercise 2:</strong> Make a linear model <code>y</code> as a function of <code>x</code>.</p>
+<p><strong>Solution to Exercise 2:</strong></p>
+<p><strong>Exercise 3:</strong> Make a plot of <code>y</code> as a function of <code>x</code>, together
+with the linear model</p>
+<p><strong>Solution to Exercise 3:</strong></p>
+<p>where none of the solutions is displayed. If you want to show
+solutions to exercises 1 and 2 all at once, all you have to do is
+change the value of the <code>switch1</code> boolean variable in the settings
+chunk as so:</p>
+<pre class="markdown"><code>```{r settings, include = FALSE}
+switch1 &lt;- TRUE
+```</code></pre>
+<p>Now, when you recompile the document, the HTML output looks like:</p>
+<p><strong>Exercise 1:</strong> Define <code>x</code> and <code>y</code> vectors as below</p>
+<pre class="r"><code>set.seed(123523458)
+x &lt;- 1:10
+y &lt;- sample(x)</code></pre>
+<p>and plot <code>y</code> as a function of <code>x</code>.</p>
+<p><strong>Solution to Exercise 1:</strong></p>
+<pre class="r"><code>plot(x, y)</code></pre>
+<p><img src="/post/2019-02-18-writing-exercises-in-r_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><strong>Exercise 2:</strong> Make a linear model <code>y</code> as a function of <code>x</code>.</p>
+<p><strong>Solution to Exercise 2:</strong></p>
+<pre class="r"><code>model &lt;- lm(y ~ x)</code></pre>
+<p><strong>Exercise 3:</strong> Make a plot of <code>y</code> as a function of <code>x</code>, together
+with the linear model</p>
+<p><strong>Solution to Exercise 3:</strong></p>
+<p>where the solutions to both exercises 1 and 2 are displayed but not
+the solution to exercise 3.</p>
+</div>
+</div>
+<div id="option-2-the-student-can-unhide-the-solution" class="section level2">
+<h2>Option 2: the student can unhide the solution</h2>
+<p>If seeing the solution of the exercises is let to the student’s decision, then
+you can opt for an interaction HTML document, using the <code>code_folding</code> option of
+the YAML header of the Rmarkdown document, as so:</p>
+<pre class="markdown"><code>---
+title: &quot;R exercises&quot;
+output:
+  html_document:
+    code_folding: hide
+---</code></pre>
+<p>Note that here, we’ve even set the <code>code_folding</code> option to the <code>hide</code> value
+which means that, by default, the R code of all the chunks will be hidden and
+the user can decide to reveal it. If the <code>code_folding</code> was set to <code>show</code>
+instead, then, by default, the R code of all the chunks will have been visible
+and the user could have decided to hide them. An example of the first option
+(<code>code_folding: hide</code>) is visible <a href="http://rpubs.com/choisy/code_folding_hide">here</a>
+(with source code <a href="http://bit.ly/codefoldinghide">here</a>) and an example of the
+second option (<code>code_folding: show</code>) is visible
+<a href="http://rpubs.com/choisy/code_folding_show">here</a> (with source code
+<a href="http://bit.ly/codefoldingshow">here</a>). Note that, unfortunately, we cannot
+define the code folding options for individual chunks (it seems that such a
+possibility is currently under development though). So, as of today, if you
+want to control code folding per chunk, you can use some javascript code in your
+Rmarkdown as suggested
+<a href="https://stackoverflow.com/questions/37755037/how-to-add-code-folding-to-output-chunks-in-rmarkdown-html-documents/37839683#37839683">here</a>. What you have to do is</p>
+<div id="include-the-javascript-code-at-the-end-of-the-rmarkdown-document" class="section level4">
+<h4>1. include the javascript code at the end of the Rmarkdown document</h4>
+<pre class="js"><code>&lt;script&gt;
+  $(&quot;.toggle&quot;).click(function() {
+    $(this).toggleClass(&quot;open&quot;);
+  });
+&lt;/script&gt;</code></pre>
+</div>
+<div id="define-a-ccs-file" class="section level4">
+<h4>2. define a CCS file</h4>
+<p>The CCS file defined the style of the button and can for example contain the
+following code:</p>
+<pre class="css"><code>.toggle {
+  height: 1.55em;
+  overflow-y: hidden;
+}
+.toggle.open {
+  height: auto;
+}</code></pre>
+<p>You can call this file <code>styles.css</code> and make a link to it in the YAML preambule
+of the Rmarkdown document:</p>
+<pre class="markdown"><code>---
+title: &quot;R exercises&quot;
+output:
+  html_document:
+    css: styles.css
+---</code></pre>
+</div>
+<div id="add-buttons-to-your-code-wherever-needed" class="section level4">
+<h4>3. add buttons to your code wherever needed</h4>
+<p>The buttons could braket any lines, these lines containing chunks or simply
+text, or actually anything. For example, here:</p>
+<pre class="markdown"><code>**Exercise 1:** Define `x` and `y` vectors as below
+
+```r
+set.seed(123523458)
+x &lt;- 1:10
+y &lt;- sample(x)
+```
+and plot `y` as a function of `x`.
+
+&lt;div class=&quot;toggle&quot;&gt;&lt;button&gt;Solution&lt;/button&gt;
+```{r}
+plot(x, y)
+```
+&lt;/div&gt;&lt;br&gt;</code></pre>
+<p>It puts a button that, when clicked on, shows the R code <code>plot(x, y)</code> together
+with its output. (Note that it is a slightly different behaviour from what we
+had with the YAML <code>code_folding</code> option where only the R code what hidden, not
+its output). See an example <a href="http://rpubs.com/choisy/code_folding_js">here</a> and
+its source code <a href="http://bit.ly/codefoldingjs">here</a> where the corresponding CSS
+file is <a href="http://bit.ly/foldingcodecss">here</a> and should saved in a file named
+<code>styles.CSS</code> in the save directory as the Rmarkdown file before compilation.</p>
+</div>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

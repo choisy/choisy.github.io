@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Teaching on R recipes</title>
+    <link>https://choisy.github.io/categories/teaching/</link>
+    <description>Recent content in Teaching on R recipes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 18 Feb 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://choisy.github.io/categories/teaching/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Writing exercises in R</title>
+      <link>https://choisy.github.io/2019/02/18/writing-exercises-in-r/</link>
+      <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://choisy.github.io/2019/02/18/writing-exercises-in-r/</guid>
+      <description>The literate programming ability of Rmarkdown makes it a great language for reproducible research. It is also used for many other applications (such as writing books, websites, blogs, apps, etc…). One of them that I’ve found particularly useful is for teaching, when the tutor needs to write exercises of which (s)he wants to control the visibility of the solutions in a way or another. Here I list two options that I’ve found particularly useful.</description>
+    </item>
+    
+  </channel>
+</rss>
