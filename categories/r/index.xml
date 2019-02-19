@@ -2,67 +2,67 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>R on R recipes</title>
-    <link>/categories/r/</link>
+    <link>https://choisy.github.io/categories/r/</link>
     <description>Recent content in R on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 18 Feb 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/categories/r/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://choisy.github.io/categories/r/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Writing exercises in R</title>
-      <link>/2019/02/18/writing-exercises-in-r/</link>
+      <link>https://choisy.github.io/2019/02/18/writing-exercises-in-r/</link>
       <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>/2019/02/18/writing-exercises-in-r/</guid>
+      <guid>https://choisy.github.io/2019/02/18/writing-exercises-in-r/</guid>
       <description>The literate programming ability of Rmarkdown makes it a great language for reproducible research. It is also used for many other applications (such as writing books, websites, blogs, apps, etc…). One of them that I’ve found particularly useful is for teaching, when the tutor needs to write exercises of which (s)he wants to control the visibility of the solutions in a way or another.
 Here I list 3 options that I’ve found particularly useful.</description>
     </item>
     
     <item>
       <title>Statistical temporal downscaling</title>
-      <link>/2018/12/28/statistical-temporal-downscaling/</link>
+      <link>https://choisy.github.io/2018/12/28/statistical-temporal-downscaling/</link>
       <pubDate>Fri, 28 Dec 2018 00:00:00 +0000</pubDate>
       
-      <guid>/2018/12/28/statistical-temporal-downscaling/</guid>
+      <guid>https://choisy.github.io/2018/12/28/statistical-temporal-downscaling/</guid>
       <description>Downscaling is a procedure that consists in infering high-resolution information from low-resolution data. This can be performed either in time or, more commonly, in space. Methodologically, it can be performed statistically (statistical downscaling) based on observed relationships between the variables of our data or mechanistically (often called dynamical downscaling), using a mechanistical model of the process generating the data. Such techniques are widely used for example in meteorology and climatology in order to derive local-scale weather and climate from Global Climate Models (GCM) data that have a typical resolution of 50 x 50 km.</description>
     </item>
     
     <item>
       <title>Computing weather variables by province</title>
-      <link>/2018/11/08/computing-weather-variables-by-province/</link>
+      <link>https://choisy.github.io/2018/11/08/computing-weather-variables-by-province/</link>
       <pubDate>Thu, 08 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>/2018/11/08/computing-weather-variables-by-province/</guid>
+      <guid>https://choisy.github.io/2018/11/08/computing-weather-variables-by-province/</guid>
       <description>Weather variables such as temperature, humidity, rainfall, etc… are collected from climatic stations. These data are thus available from points in space whereas we often need them to be representative of administrative units (e.g. provinces) which are polygons. A strategy to transform points data into polygons data is to perform interpolation of points data onto a grid and then aggregation of grid data into polygons, as illustrated on the figure below:</description>
     </item>
     
     <item>
       <title>Downloading files from Github or Dropbox</title>
-      <link>/2018/09/10/downloading-files-from-github-or-dropbox/</link>
+      <link>https://choisy.github.io/2018/09/10/downloading-files-from-github-or-dropbox/</link>
       <pubDate>Mon, 10 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>/2018/09/10/downloading-files-from-github-or-dropbox/</guid>
+      <guid>https://choisy.github.io/2018/09/10/downloading-files-from-github-or-dropbox/</guid>
       <description>There are functions in R that work on URL, such as download.file or even read.table (plus many others, including some from dedicated packages such as RCurl). One may thus think that (s)he can just go on a Github or Dropbox webpage, copy the URL of the file their are interested in and paste it directly into R. It’s almost that, except for a little tweak. Indeed the URL that you would copy this way is the URL to the file display on the webpage.</description>
     </item>
     
     <item>
       <title>Big data packages</title>
-      <link>/2018/05/31/big-data-packages/</link>
+      <link>https://choisy.github.io/2018/05/31/big-data-packages/</link>
       <pubDate>Thu, 31 May 2018 00:00:00 +0000</pubDate>
       
-      <guid>/2018/05/31/big-data-packages/</guid>
+      <guid>https://choisy.github.io/2018/05/31/big-data-packages/</guid>
       <description>When you create an R data package, it may happen that the data is too big to be hosted on CRAN that has a package size limit of 5 MB or even on Github that has a repository size limit of 1 GB and a file size limit of 100 MB. Here I show how to build such a package in a way that leaves the data on another server and then lets the user download the data when (s)he needs it for the first time.</description>
     </item>
     
     <item>
       <title>Parallel computation</title>
-      <link>/2018/05/30/parallel-computation/</link>
+      <link>https://choisy.github.io/2018/05/30/parallel-computation/</link>
       <pubDate>Wed, 30 May 2018 00:00:00 +0000</pubDate>
       
-      <guid>/2018/05/30/parallel-computation/</guid>
+      <guid>https://choisy.github.io/2018/05/30/parallel-computation/</guid>
       <description>Parallel version of replicate with parallel Loading the package:
 &amp;gt; library(parallel) of which we’ll use the 6 following functions:
  detectCores which detects the number of CPU cores; makeCluster which creates a cluster of a given number of cores; clusterEvalQ which evaluates a literal expression on each cluster node. It is a parallel version of evalq. clusterExport which assigns the values on the master R process of the variables named in its named list argument to variables of the same names in the global environment (aka workspace) of each node; parSapply parallel version of sapply.</description>
@@ -70,10 +70,10 @@ Here I list 3 options that I’ve found particularly useful.</description>
     
     <item>
       <title>System language</title>
-      <link>/2018/05/14/system-language/</link>
+      <link>https://choisy.github.io/2018/05/14/system-language/</link>
       <pubDate>Mon, 14 May 2018 00:00:00 +0000</pubDate>
       
-      <guid>/2018/05/14/system-language/</guid>
+      <guid>https://choisy.github.io/2018/05/14/system-language/</guid>
       <description>You can change the language in which R is talking to the user from the definition of the LANG environment variable:
 &amp;gt; Sys.getenv(&amp;quot;LANG&amp;quot;) [1] &amp;quot;fr_FR.UTF-8&amp;quot; &amp;gt; log(-3) Warning in log(-3): production de NaN [1] NaN Changing to English:
 &amp;gt; Sys.setenv(LANG = &amp;quot;en_US.UTF-8&amp;quot;) &amp;gt; log(-3) Warning in log(-3): NaNs produced [1] NaN and back to French:
@@ -82,20 +82,20 @@ Here I list 3 options that I’ve found particularly useful.</description>
     
     <item>
       <title>Spatial buffers</title>
-      <link>/2018/01/22/spatial-buffers/</link>
+      <link>https://choisy.github.io/2018/01/22/spatial-buffers/</link>
       <pubDate>Mon, 22 Jan 2018 00:00:00 +0000</pubDate>
       
-      <guid>/2018/01/22/spatial-buffers/</guid>
+      <guid>https://choisy.github.io/2018/01/22/spatial-buffers/</guid>
       <description>Packages needed Install these packages if they are not already installed on your system, then load them:
 &amp;gt; library(sp) # plot, points, spsample &amp;gt; library(purrr) # map2 &amp;gt; library(dplyr) # %&amp;gt;%, mutate &amp;gt; library(rgeos) # gIntersection &amp;gt; library(raster) # plot, buffer &amp;gt; library(geosphere) # areaPolygon We can compute statistics in buffer zones around specific points. For that we need spatial data in raster format. These data can be qualitative (e.</description>
     </item>
     
     <item>
       <title>Confidence intervals</title>
-      <link>/2018/01/09/confidence-intervals/</link>
+      <link>https://choisy.github.io/2018/01/09/confidence-intervals/</link>
       <pubDate>Tue, 09 Jan 2018 00:00:00 +0000</pubDate>
       
-      <guid>/2018/01/09/confidence-intervals/</guid>
+      <guid>https://choisy.github.io/2018/01/09/confidence-intervals/</guid>
       <description>Simulating fake data:
 &amp;gt; x &amp;lt;- 10 * runif(10) &amp;gt; y &amp;lt;- rnorm(10, mean = 2 + 3 * x, 3) Visualizing:
 &amp;gt; plot(y ~ x, col = &amp;quot;blue&amp;quot;, pch = 19) Estimating a linear model:
@@ -105,10 +105,10 @@ Here I list 3 options that I’ve found particularly useful.</description>
     
     <item>
       <title>Palettes of colors</title>
-      <link>/2018/01/08/palettes-of-colors/</link>
+      <link>https://choisy.github.io/2018/01/08/palettes-of-colors/</link>
       <pubDate>Mon, 08 Jan 2018 00:00:00 +0000</pubDate>
       
-      <guid>/2018/01/08/palettes-of-colors/</guid>
+      <guid>https://choisy.github.io/2018/01/08/palettes-of-colors/</guid>
       <description>A great function to generate palettes of colors is colorRampPalette from the grDevices package. This function takes a set of colors as argument and returns a function similar to grDevices::heat.colors and others that generates a palette of n contiguous colors, n being an argument of this function. The generation of the palette of colors is done by interpolation (spline or linear) and a good starting points for interpolation are the “sequential” and “diverging” palettes generated by RColorBrewer::brewer.</description>
     </item>
     

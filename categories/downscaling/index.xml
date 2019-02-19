@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Downscaling on R recipes</title>
-    <link>/categories/downscaling/</link>
+    <link>https://choisy.github.io/categories/downscaling/</link>
     <description>Recent content in Downscaling on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 28 Dec 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/categories/downscaling/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://choisy.github.io/categories/downscaling/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Statistical temporal downscaling</title>
-      <link>/2018/12/28/statistical-temporal-downscaling/</link>
+      <link>https://choisy.github.io/2018/12/28/statistical-temporal-downscaling/</link>
       <pubDate>Fri, 28 Dec 2018 00:00:00 +0000</pubDate>
       
-      <guid>/2018/12/28/statistical-temporal-downscaling/</guid>
+      <guid>https://choisy.github.io/2018/12/28/statistical-temporal-downscaling/</guid>
       <description>Downscaling is a procedure that consists in infering high-resolution information from low-resolution data. This can be performed either in time or, more commonly, in space. Methodologically, it can be performed statistically (statistical downscaling) based on observed relationships between the variables of our data or mechanistically (often called dynamical downscaling), using a mechanistical model of the process generating the data. Such techniques are widely used for example in meteorology and climatology in order to derive local-scale weather and climate from Global Climate Models (GCM) data that have a typical resolution of 50 x 50 km.</description>
     </item>
     
