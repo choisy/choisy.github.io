@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Hugo 0.51" />
+<meta name="generator" content="Hugo 0.54.0" />
 
 
 <title>Writing exercises in R - R recipes</title>
@@ -59,7 +59,7 @@
 
   <article class="article">
     
-    <span class="article-duration">6 min read</span>
+    <span class="article-duration">8 min read</span>
     
 
     <h1 class="article-title">Writing exercises in R</h1>
@@ -76,19 +76,67 @@
 <strong>reproducible research</strong>. It is also used for many other applications (such as
 writing books, websites, blogs, apps, etc…). One of them that I’ve found
 particularly useful is for teaching, when the tutor needs to write exercises of
-which (s)he wants to control the visibility of the solutions in a way or another.
-Here I list two options that I’ve found particularly useful. For the first one,
-the tutor wants to keep full control of the solution visibility. In the second
-one, the tutor on the contrary gives the control of the solution visibility to
-the student.</p>
-<p>The way I work is that I write the Rmarkdown document, then compile it to an
-HTML document that I host on a web server, of which I provide the URL to the
-student.</p>
+which (s)he wants to control the visibility of the solutions in a way or another.</p>
+<p>Here I list 3 options that I’ve found particularly useful. The first one makes
+use of the <code>include</code> <strong>chunk option</strong> of the Rmarkdown file and allows the tutor
+to control whether the solutions will be visible or not (the options have to be
+set before the compilation of the Rmarkdown document into HTML). The second
+option makes use of the <code>code_folding</code> option of the <strong>YAML header</strong> of the
+Rmarkdown document and leaves the control of the solutions visibility to the
+student. By default, all the R code will be either visible or hidden (depending
+on the value of the <code>code_folding</code> option in the YAML header), but all the R
+code will necessarily have the same default option. If one is interested in
+having some R code that is always visible and some other chunks of R code that
+is hidden but could be shown by the user, then the third option making use of
+<strong>JavaScript</strong> would do the job. The insertion of JavaScript code in the
+Rmarkdown file is the most flexible solution that allows to hide any number of
+lines (not necessarily R chunks). However, compared to the 2 previous options,
+in case an R code chunk is hidden, it will also hide the output of this R code
+chunk (whereas it remains visible for the first 2 options). The table below
+recaps the different characteristics of the 3 options.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Control</th>
+<th>Default</th>
+<th>Which</th>
+<th>Hidden output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>chunk option</td>
+<td>tutor</td>
+<td>NA</td>
+<td>any R chunk</td>
+<td>no</td>
+</tr>
+<tr class="even">
+<td>YAML header</td>
+<td>tutor</td>
+<td>any</td>
+<td>all R chunk</td>
+<td>no</td>
+</tr>
+<tr class="odd">
+<td>JavaScript</td>
+<td>student</td>
+<td>hidden</td>
+<td>any line</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p>The way I work as a tutor is that I write the Rmarkdown document, then compile
+it to an HTML document that I host on a web server (for example
+<a href="http://rpubs.com">RPubs</a>), of which I provide the URL to the student. Links to
+examples and templates are also provided below.</p>
 <div id="option-1-the-tutor-controls-the-visibility-of-the-solutions" class="section level2">
 <h2>Option 1: the tutor controls the visibility of the solutions</h2>
 <p>When I, as the tutor, want to keep full control of the visibility of the
-solution, I do it thanks to the chunk option <code>include</code> in the Rmarkdown
-document. For example, the following Rmarkdown code:</p>
+solution, I do it thanks to the chunk option <code>include</code> of the R code chunks of
+the Rmarkdown document. For example, the following Rmarkdown code:</p>
 <pre class="markdown"><code>**Exercise 1:** Define `x` and `y` vectors as below
 ```{r exercise_1}
 set.seed(123523458)
@@ -122,7 +170,7 @@ and plot `y` as a function of `x`.
 ```{r solution_1, include = TRUE}
 plot(x, y)
 ```</code></pre>
-<p>which produces produces the following HTML output:</p>
+<p>which produces the following HTML output after recompilation:</p>
 <p><strong>Exercise 1:</strong> Define <code>x</code> and <code>y</code> vectors as below</p>
 <pre class="r"><code>set.seed(123523458)
 x &lt;- 1:10
@@ -135,9 +183,9 @@ y &lt;- sample(x)</code></pre>
 <div id="showing-several-solutions-at-once" class="section level3">
 <h3>Showing several solutions at once</h3>
 <p>You may have several exercises, each with its solution. If you decide to show
-solutions at once, all you have to do is define a boolean variable and use the
-value of this variable for the value of the <code>include</code> option of all the chuncks
-you want to control the same way. Good practice is to define the boolean
+several solutions at once, all you have to do is define a boolean variable and
+use the value of this variable for the value of the <code>include</code> option of all the
+chuncks you want to control the same way. Good practice is to define the boolean
 variable in a chunk at the beginning of the Rmarkdown document that contains all
 the settings of the document. Here is an example:</p>
 <pre class="markdown"><code>```{r settings, include = FALSE}
@@ -210,10 +258,10 @@ with the linear model</p>
 the solution to exercise 3.</p>
 </div>
 </div>
-<div id="option-2-the-student-can-unhide-the-solution" class="section level2">
-<h2>Option 2: the student can unhide the solution</h2>
+<div id="option-2-the-student-can-unhide-the-solution-himherself" class="section level2">
+<h2>Option 2: the student can unhide the solution him(her)self</h2>
 <p>If seeing the solution of the exercises is let to the student’s decision, then
-you can opt for an interaction HTML document, using the <code>code_folding</code> option of
+you can opt for an interactive HTML document, using the <code>code_folding</code> option of
 the YAML header of the Rmarkdown document, as so:</p>
 <pre class="markdown"><code>---
 title: &quot;R exercises&quot;
@@ -223,31 +271,38 @@ output:
 ---</code></pre>
 <p>Note that here, we’ve even set the <code>code_folding</code> option to the <code>hide</code> value
 which means that, by default, the R code of all the chunks will be hidden and
-the user can decide to reveal it. If the <code>code_folding</code> was set to <code>show</code>
-instead, then, by default, the R code of all the chunks will have been visible
-and the user could have decided to hide them. An example of the first option
-(<code>code_folding: hide</code>) is visible <a href="http://rpubs.com/choisy/code_folding_hide">here</a>
-(with source code <a href="http://bit.ly/codefoldinghide">here</a>) and an example of the
-second option (<code>code_folding: show</code>) is visible
+the user can decide to reveal all or each of them separately. If the
+<code>code_folding</code> was set to <code>show</code> instead, then, by default, the R code of all
+the chunks will have been visible and the user could have decided to hide them,
+again, all of them at once, or each of them separately. An example of the first
+option (<code>code_folding: hide</code>) is visible
+<a href="http://rpubs.com/choisy/code_folding_hide">here</a> (with source code
+<a href="http://bit.ly/codefoldinghide">here</a>) and an example of the second option
+(<code>code_folding: show</code>) is visible
 <a href="http://rpubs.com/choisy/code_folding_show">here</a> (with source code
-<a href="http://bit.ly/codefoldingshow">here</a>). Note that, unfortunately, we cannot
-define the code folding options for individual chunks (it seems that such a
-possibility is currently under development though). So, as of today, if you
-want to control code folding per chunk, you can use some javascript code in your
-Rmarkdown as suggested
-<a href="https://stackoverflow.com/questions/37755037/how-to-add-code-folding-to-output-chunks-in-rmarkdown-html-documents/37839683#37839683">here</a>. What you have to do is</p>
-<div id="include-the-javascript-code-at-the-end-of-the-rmarkdown-document" class="section level4">
-<h4>1. include the javascript code at the end of the Rmarkdown document</h4>
+<a href="http://bit.ly/codefoldingshow">here</a>). Note by the way that the output of the
+R code chunks are never hidden.</p>
+</div>
+<div id="option-3-flexibility-with-javascript" class="section level2">
+<h2>Option 3: flexibility with JavaScript</h2>
+<p>Because option 2 makes use of an option of the YAML header of the Rmarkdown
+document, it is impossible to define different behaviors on different R code
+chunks. As of February 2019, the only way to the combine user control of option
+2 with the by-chunk definition of option 1 is to make use of JavaScript code in
+the Rmarkdown document as suggested
+<a href="https://stackoverflow.com/questions/37755037/how-to-add-code-folding-to-output-chunks-in-rmarkdown-html-documents/37839683#37839683">here</a>
+(it seems that an Rmarkdown solution to do so is under development at the moment).
+What you have to do is</p>
+<div id="include-the-following-javascript-code-at-the-end-of-the-rmarkdown-document" class="section level4">
+<h4>1. include the following javascript code at the end of the Rmarkdown document:</h4>
 <pre class="js"><code>&lt;script&gt;
   $(&quot;.toggle&quot;).click(function() {
     $(this).toggleClass(&quot;open&quot;);
   });
 &lt;/script&gt;</code></pre>
 </div>
-<div id="define-a-ccs-file" class="section level4">
-<h4>2. define a CCS file</h4>
-<p>The CCS file defined the style of the button and can for example contain the
-following code:</p>
+<div id="write-a-ccs-file-that-contains-the-following-css-code" class="section level4">
+<h4>2. write a CCS file that contains the following CSS code:</h4>
 <pre class="css"><code>.toggle {
   height: 1.55em;
   overflow-y: hidden;
@@ -255,8 +310,9 @@ following code:</p>
 .toggle.open {
   height: auto;
 }</code></pre>
-<p>You can call this file <code>styles.css</code> and make a link to it in the YAML preambule
-of the Rmarkdown document:</p>
+<p>This CCS code defines the style of the button. In this example, let’s call
+this file <code>styles.css</code> and make a link to it in the YAML header of the
+Rmarkdown document:</p>
 <pre class="markdown"><code>---
 title: &quot;R exercises&quot;
 output:
@@ -264,10 +320,8 @@ output:
     css: styles.css
 ---</code></pre>
 </div>
-<div id="add-buttons-to-your-code-wherever-needed" class="section level4">
-<h4>3. add buttons to your code wherever needed</h4>
-<p>The buttons could braket any lines, these lines containing chunks or simply
-text, or actually anything. For example, here:</p>
+<div id="add-buttons-to-your-code-wherever-needed-as-so" class="section level4">
+<h4>3. add buttons to your code wherever needed as so:</h4>
 <pre class="markdown"><code>**Exercise 1:** Define `x` and `y` vectors as below
 
 ```r
@@ -282,13 +336,16 @@ and plot `y` as a function of `x`.
 plot(x, y)
 ```
 &lt;/div&gt;&lt;br&gt;</code></pre>
-<p>It puts a button that, when clicked on, shows the R code <code>plot(x, y)</code> together
-with its output. (Note that it is a slightly different behaviour from what we
-had with the YAML <code>code_folding</code> option where only the R code what hidden, not
-its output). See an example <a href="http://rpubs.com/choisy/code_folding_js">here</a> and
-its source code <a href="http://bit.ly/codefoldingjs">here</a> where the corresponding CSS
-file is <a href="http://bit.ly/foldingcodecss">here</a> and should saved in a file named
-<code>styles.CSS</code> in the save directory as the Rmarkdown file before compilation.</p>
+<p>The above example includes a button that, when clicked on, shows the R code
+<code>plot(x, y)</code> together with its output. (Note that it is a slightly different
+behaviour from what we had with the YAML <code>code_folding</code> option where only the R
+code was hidden, not its output). See an example
+<a href="http://rpubs.com/choisy/code_folding_js">here</a> and its source code
+<a href="http://bit.ly/codefoldingjs">here</a> for which the corresponding CSS file is
+<a href="http://bit.ly/foldingcodecss">here</a> and should be saved in a file named
+<code>styles.css</code> in the save directory as the Rmarkdown file before compilation.
+Note also that the buttons could braket any lines, these lines containing chunks
+or simply text, or actually anything.</p>
 </div>
 </div>
 

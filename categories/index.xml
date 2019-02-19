@@ -2,102 +2,111 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on R recipes</title>
-    <link>https://choisy.github.io/categories/</link>
+    <link>/categories/</link>
     <description>Recent content in Categories on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 31 May 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://choisy.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/categories/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Big Data</title>
-      <link>https://choisy.github.io/categories/big-data/</link>
+      <link>/categories/big-data/</link>
       <pubDate>Thu, 31 May 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/categories/big-data/</guid>
+      <guid>/categories/big-data/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Computing</title>
-      <link>https://choisy.github.io/categories/computing/</link>
+      <link>/categories/computing/</link>
       <pubDate>Thu, 08 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/categories/computing/</guid>
+      <guid>/categories/computing/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Downscaling</title>
-      <link>https://choisy.github.io/categories/downscaling/</link>
+      <link>/categories/downscaling/</link>
       <pubDate>Fri, 28 Dec 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/categories/downscaling/</guid>
+      <guid>/categories/downscaling/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Graphics</title>
-      <link>https://choisy.github.io/categories/graphics/</link>
+      <link>/categories/graphics/</link>
       <pubDate>Mon, 08 Jan 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/categories/graphics/</guid>
+      <guid>/categories/graphics/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Kriging</title>
-      <link>https://choisy.github.io/categories/kriging/</link>
+      <link>/categories/kriging/</link>
       <pubDate>Thu, 08 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/categories/kriging/</guid>
+      <guid>/categories/kriging/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Package</title>
-      <link>https://choisy.github.io/categories/package/</link>
+      <link>/categories/package/</link>
       <pubDate>Thu, 31 May 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/categories/package/</guid>
+      <guid>/categories/package/</guid>
       <description></description>
     </item>
     
     <item>
       <title>R</title>
-      <link>https://choisy.github.io/categories/r/</link>
-      <pubDate>Fri, 28 Dec 2018 00:00:00 +0000</pubDate>
+      <link>/categories/r/</link>
+      <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/categories/r/</guid>
+      <guid>/categories/r/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Spatial</title>
-      <link>https://choisy.github.io/categories/spatial/</link>
+      <link>/categories/spatial/</link>
       <pubDate>Thu, 08 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/categories/spatial/</guid>
+      <guid>/categories/spatial/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Statistics</title>
-      <link>https://choisy.github.io/categories/statistics/</link>
+      <link>/categories/statistics/</link>
       <pubDate>Mon, 22 Jan 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/categories/statistics/</guid>
+      <guid>/categories/statistics/</guid>
       <description></description>
     </item>
     
     <item>
       <title>System</title>
-      <link>https://choisy.github.io/categories/system/</link>
+      <link>/categories/system/</link>
       <pubDate>Mon, 14 May 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/categories/system/</guid>
+      <guid>/categories/system/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Teaching</title>
+      <link>/categories/teaching/</link>
+      <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/categories/teaching/</guid>
       <description></description>
     </item>
     

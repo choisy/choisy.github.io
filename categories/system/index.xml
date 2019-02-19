@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>System on R recipes</title>
-    <link>https://choisy.github.io/categories/system/</link>
+    <link>/categories/system/</link>
     <description>Recent content in System on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 14 May 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://choisy.github.io/categories/system/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/categories/system/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>System language</title>
-      <link>https://choisy.github.io/2018/05/14/system-language/</link>
+      <link>/2018/05/14/system-language/</link>
       <pubDate>Mon, 14 May 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/2018/05/14/system-language/</guid>
+      <guid>/2018/05/14/system-language/</guid>
       <description>You can change the language in which R is talking to the user from the definition of the LANG environment variable:
 &amp;gt; Sys.getenv(&amp;quot;LANG&amp;quot;) [1] &amp;quot;fr_FR.UTF-8&amp;quot; &amp;gt; log(-3) Warning in log(-3): production de NaN [1] NaN Changing to English:
 &amp;gt; Sys.setenv(LANG = &amp;quot;en_US.UTF-8&amp;quot;) &amp;gt; log(-3) Warning in log(-3): NaNs produced [1] NaN and back to French:

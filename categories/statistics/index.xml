@@ -2,31 +2,31 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Statistics on R recipes</title>
-    <link>https://choisy.github.io/categories/statistics/</link>
+    <link>/categories/statistics/</link>
     <description>Recent content in Statistics on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 22 Jan 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://choisy.github.io/categories/statistics/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/categories/statistics/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Spatial buffers</title>
-      <link>https://choisy.github.io/2018/01/22/spatial-buffers/</link>
+      <link>/2018/01/22/spatial-buffers/</link>
       <pubDate>Mon, 22 Jan 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/2018/01/22/spatial-buffers/</guid>
+      <guid>/2018/01/22/spatial-buffers/</guid>
       <description>Packages needed Install these packages if they are not already installed on your system, then load them:
 &amp;gt; library(sp) # plot, points, spsample &amp;gt; library(purrr) # map2 &amp;gt; library(dplyr) # %&amp;gt;%, mutate &amp;gt; library(rgeos) # gIntersection &amp;gt; library(raster) # plot, buffer &amp;gt; library(geosphere) # areaPolygon We can compute statistics in buffer zones around specific points. For that we need spatial data in raster format. These data can be qualitative (e.</description>
     </item>
     
     <item>
       <title>Confidence intervals</title>
-      <link>https://choisy.github.io/2018/01/09/confidence-intervals/</link>
+      <link>/2018/01/09/confidence-intervals/</link>
       <pubDate>Tue, 09 Jan 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/2018/01/09/confidence-intervals/</guid>
+      <guid>/2018/01/09/confidence-intervals/</guid>
       <description>Simulating fake data:
 &amp;gt; x &amp;lt;- 10 * runif(10) &amp;gt; y &amp;lt;- rnorm(10, mean = 2 + 3 * x, 3) Visualizing:
 &amp;gt; plot(y ~ x, col = &amp;quot;blue&amp;quot;, pch = 19) Estimating a linear model:
