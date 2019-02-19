@@ -2,30 +2,30 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Spatial on R recipes</title>
-    <link>https://choisy.github.io/categories/spatial/</link>
+    <link>/categories/spatial/</link>
     <description>Recent content in Spatial on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 08 Nov 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://choisy.github.io/categories/spatial/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/categories/spatial/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Computing weather variables by province</title>
-      <link>https://choisy.github.io/2018/11/08/computing-weather-variables-by-province/</link>
+      <link>/2018/11/08/computing-weather-variables-by-province/</link>
       <pubDate>Thu, 08 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/2018/11/08/computing-weather-variables-by-province/</guid>
+      <guid>/2018/11/08/computing-weather-variables-by-province/</guid>
       <description>Weather variables such as temperature, humidity, rainfall, etc… are collected from climatic stations. These data are thus available from points in space whereas we often need them to be representative of administrative units (e.g. provinces) which are polygons. A strategy to transform points data into polygons data is to perform interpolation of points data onto a grid and then aggregation of grid data into polygons, as illustrated on the figure below:</description>
     </item>
     
     <item>
       <title>Computing population centers</title>
-      <link>https://choisy.github.io/2018/10/29/computing-population-centers/</link>
+      <link>/2018/10/29/computing-population-centers/</link>
       <pubDate>Mon, 29 Oct 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/2018/10/29/computing-population-centers/</guid>
+      <guid>/2018/10/29/computing-population-centers/</guid>
       <description>In demographics, the centre of population (or population center, or population centroid) of a region is a geographical point that describes a centrepoint of the region’s population. See here for more detail. The figure below shows for example the change of the location of the population center of the USA from 1790 to 2010:
 
  In this post we show how we can use population density raster data from the WorldPop project to calculate population centers of given polygons such as those provided by the GADM project.</description>
@@ -33,10 +33,10 @@
     
     <item>
       <title>Spatial buffers</title>
-      <link>https://choisy.github.io/2018/01/22/spatial-buffers/</link>
+      <link>/2018/01/22/spatial-buffers/</link>
       <pubDate>Mon, 22 Jan 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://choisy.github.io/2018/01/22/spatial-buffers/</guid>
+      <guid>/2018/01/22/spatial-buffers/</guid>
       <description>Packages needed Install these packages if they are not already installed on your system, then load them:
 &amp;gt; library(sp) # plot, points, spsample &amp;gt; library(purrr) # map2 &amp;gt; library(dplyr) # %&amp;gt;%, mutate &amp;gt; library(rgeos) # gIntersection &amp;gt; library(raster) # plot, buffer &amp;gt; library(geosphere) # areaPolygon We can compute statistics in buffer zones around specific points. For that we need spatial data in raster format. These data can be qualitative (e.</description>
     </item>
