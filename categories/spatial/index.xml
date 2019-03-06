@@ -6,10 +6,20 @@
     <description>Recent content in Spatial on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 08 Nov 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 06 Mar 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://choisy.github.io/categories/spatial/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Lengths of latitude and longitude degrees</title>
+      <link>https://choisy.github.io/2019/03/06/lengths-of-latitude-and-longitude-degrees/</link>
+      <pubDate>Wed, 06 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://choisy.github.io/2019/03/06/lengths-of-latitude-and-longitude-degrees/</guid>
+      <description>In geography or spatial analyses, it is common that lengths are expressed in degree (minutes, seconds) instead of meter or km as we are more used to. Because of the spheroidal shape of the earth, the length in km of one degree of latitude or longitude depends on the latitude of the location. Formulas to do the conversion are available here that we use below.
+The length of 1 degree of latitude in km, in function of the latitude x in decimal degree is given by the following function:</description>
+    </item>
     
     <item>
       <title>Computing weather variables by province</title>

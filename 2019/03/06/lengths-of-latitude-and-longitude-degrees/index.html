@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.54.0" />
+
+
+<title>Lengths of latitude and longitude degrees - R recipes</title>
+<meta property="og:title" content="Lengths of latitude and longitude degrees - R recipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">2 min read</span>
+    
+
+    <h1 class="article-title">Lengths of latitude and longitude degrees</h1>
+
+    
+    <span class="article-date">2019/03/06</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p>In geography or spatial analyses, it is common that lengths are expressed in
+degree (minutes, seconds) instead of meter or km as we are more used to.
+Because of the spheroidal shape of the earth, the length in km of one degree of
+latitude or longitude depends on the latitude of the location. Formulas to do
+the conversion are available <a href="https://gis.stackexchange.com/questions/75528/understanding-terms-in-length-of-degree-formula">here</a> that we use below.</p>
+<p>The length of 1 degree of latitude in km, in function of the latitude <code>x</code> in
+decimal degree is given by the following function:</p>
+<pre class="r"><code>latitude_length &lt;- function(x) {
+  x &lt;- pi * x / 180
+  (111132.92 - 559.82 * cos(2 * x) + 1.175 * cos(4 * x) - .0023 * cos(6 * x)) / 1000
+}</code></pre>
+<p>let’s generate a vector of latitude values between the equator and the north
+pole:</p>
+<pre class="r"><code>latitudes &lt;- seq(0, 90, le = 512)</code></pre>
+<p>We can verify that the length of 1 degree of latitude varies very little between
+the equator and the north pole:</p>
+<pre class="r"><code>range(latitude_length(latitudes))</code></pre>
+<pre><code>## [1] 110.5743 111.6939</code></pre>
+<p>this is because the shape of the earth is very close to be spherical. Now, let’s
+look at the length in km of 1 degree of longitude as a function of the latitude
+<code>x</code> in decimal degree, which is given by the following function:</p>
+<pre class="r"><code>longitude_length &lt;- function(x) {
+  x &lt;- pi * x / 180
+  (111412.84 * cos(x) - 93.5 * cos(3 * x) + .118 * cos(5 * x)) / 1000
+}</code></pre>
+<p>let’s use this function to plot the length of 1 degree of longitude as a
+function of the latitude:</p>
+<pre class="r"><code>plot(longitude_length(latitudes), latitudes, type = &quot;l&quot;,
+     xlab = &quot;length of 1° of longitude (km)&quot;,
+     ylab = &quot;latitude (°)&quot;,
+     xlim = c(0, 120),
+     ylim = c(0, 100))</code></pre>
+<p><img src="/post/2019-03-06-lengths-of-latitude-and-longitude-degrees_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>We can thus verify that a cell close to the equator is almost of square shape
+and becomes more and more triangular as we get closer to the north pole. To
+finish, let’s have a look at the variation of the length of 1 degree of
+longitude in the intertropical zone:</p>
+<pre class="r"><code>tropics &lt;- seq(0, 23.43682, le = 512)
+range(longitude_length(tropics))</code></pre>
+<pre><code>## [1] 102.1896 111.3195</code></pre>
+<p>And in Vietnam:</p>
+<pre class="r"><code>vietnam &lt;- seq(8.563512, 23.392651, le = 512)
+range(longitude_length(vietnam))</code></pre>
+<pre><code>## [1] 102.2236 110.0866</code></pre>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
