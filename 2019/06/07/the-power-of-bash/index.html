@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.54.0" />
+
+
+<title>The power of bash - R recipes</title>
+<meta property="og:title" content="The power of bash - R recipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">3 min read</span>
+    
+
+    <h1 class="article-title">The power of bash</h1>
+
+    
+    <span class="article-date">2019/06/07</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p>Very often I remember the name of the R function I need to use for a particular
+problem but I don’t quite remember how to use it exactly… And, even worse,
+what I remember is that last time I had to use this function it took me a long
+time to figure out how to use it… Since I’m not ready to go through that
+learning process again, I decide to look for the R script on my computer that
+did make use of this function. And here comes the power of <code>bash</code>! (if you have
+bash on your computer, of course…). Well, to be more precise, I actually
+refering to the particular <code>find</code> and <code>grep</code> commands here that can be used in
+<code>bash</code> of course (if you’re on linux or macos), but also in any other UNIX-type
+shell. Let’s demonstrate its power, using my specific example.</p>
+<p>The R function I wanted to use was <code>sf::st_simplify()</code>. I knew I used it
+recently (in the last 2 months) in an Rmarkdown file, but I couldn’t remember
+which one. Looking for all the Rmarkdown files in the current file hierarchy is
+done by</p>
+<pre class="bash"><code>find ~/Dropbox/aaa -name &quot;*.Rmd&quot; -mtime -10w -type f</code></pre>
+<p>The <code>find</code> command is followed by the path of the location where we want to
+start the file search (here <code>~/Dropbox/aaa</code>). Then it is followed by a number of
+options specified by pairs of options names (preceded by the <code>-</code> sign) followed
+by the option value. For example, here <code>-name "*.Rmd"</code> specifies that we are
+looking for files with names ending with the <code>.Rmd</code> extension, <code>-mtime -10w</code>
+means that we are looking at files that were modified less than 10 weeks ago and
+<code>-type f</code> means that we are looking at regular files (excluding directories,
+links, etc…). If we had been interested in file that were modified more than
+3 months ago instead of less than 10 weeks ago, that would have been specified
+by <code>-mtime +3m</code>. Among these options, one is particularly amazing in the sense
+that it allows to run another command on the files that were selected. This
+option is <code>-exec</code> and is followed by the command we want to run. For example,
+here, I want to search for the <code>st_simplify</code> pattern in the selected files:</p>
+<pre class="bash"><code>find ~/Dropbox/aaa -name &quot;*.Rmd&quot; -mtime -10w -type f -exec grep -n &quot;st_simplify&quot; {} \;</code></pre>
+<p>Here it says that, on each of the files that were selected by the first part of
+the <code>find</code> command (this files are here specified by the <code>{}</code> placeholder), we
+want to execute the <code>grep</code> command (with the -n option in order to also print
+the line number where the pattern was found in the file). Don’t forget here the
+<code>\;</code> sign that closes the value of the <code>-exec</code> option. Indeed, contrary to the
+other options of the <code>find</code> command that have, as a value, only one “word” (i.e.
+character string without any space), the <code>-exec</code> may have (and typically have)
+many words as its value. Thus, the value of the <code>-exec</code> command is all the words
+that are between <code>exec</code> and <code>\;</code>. Adding the <code>-print</code> option (no value) will have
+the effect to print the name of the file where the pattern was found:</p>
+<pre class="bash"><code>find ~/Dropbox/aaa -name &quot;*.Rmd&quot; -mtime -10w -type f -exec grep -n &quot;st_simplify&quot; {} \; -print</code></pre>
+<p>And here it is!</p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

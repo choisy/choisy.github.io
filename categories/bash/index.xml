@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Bash on R recipes</title>
+    <link>/categories/bash/</link>
+    <description>Recent content in Bash on R recipes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 07 Jun 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/bash/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>The power of bash</title>
+      <link>/2019/06/07/the-power-of-bash/</link>
+      <pubDate>Fri, 07 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/06/07/the-power-of-bash/</guid>
+      <description>Very often I remember the name of the R function I need to use for a particular problem but I don’t quite remember how to use it exactly… And, even worse, what I remember is that last time I had to use this function it took me a long time to figure out how to use it… Since I’m not ready to go through that learning process again, I decide to look for the R script on my computer that did make use of this function.</description>
+    </item>
+    
+  </channel>
+</rss>

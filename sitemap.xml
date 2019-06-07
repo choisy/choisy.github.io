@@ -3,155 +3,166 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://choisy.github.io/2019/03/06/lengths-of-latitude-and-longitude-degrees/</loc>
+    <loc>/2019/06/07/the-power-of-bash/</loc>
+    <lastmod>2019-06-07T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/2019/03/06/lengths-of-latitude-and-longitude-degrees/</loc>
     <lastmod>2019-03-06T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/2019/02/18/writing-exercises-in-r/</loc>
+    <loc>/2019/02/18/writing-exercises-in-r/</loc>
     <lastmod>2019-02-18T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/2018/12/28/statistical-temporal-downscaling/</loc>
+    <loc>/2018/12/28/statistical-temporal-downscaling/</loc>
     <lastmod>2018-12-28T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/2018/11/08/computing-weather-variables-by-province/</loc>
+    <loc>/2018/11/08/computing-weather-variables-by-province/</loc>
     <lastmod>2018-11-08T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/2018/10/29/computing-population-centers/</loc>
+    <loc>/2018/10/29/computing-population-centers/</loc>
     <lastmod>2018-10-29T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/2018/09/10/downloading-files-from-github-or-dropbox/</loc>
+    <loc>/2018/09/10/downloading-files-from-github-or-dropbox/</loc>
     <lastmod>2018-09-10T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/2018/05/31/big-data-packages/</loc>
+    <loc>/2018/05/31/big-data-packages/</loc>
     <lastmod>2018-05-31T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/2018/05/30/parallel-computation/</loc>
+    <loc>/2018/05/30/parallel-computation/</loc>
     <lastmod>2018-05-30T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/2018/05/14/system-language/</loc>
+    <loc>/2018/05/14/system-language/</loc>
     <lastmod>2018-05-14T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/2018/01/22/spatial-buffers/</loc>
+    <loc>/2018/01/22/spatial-buffers/</loc>
     <lastmod>2018-01-22T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/2018/01/09/confidence-intervals/</loc>
+    <loc>/2018/01/09/confidence-intervals/</loc>
     <lastmod>2018-01-09T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/2018/01/08/palettes-of-colors/</loc>
+    <loc>/2018/01/08/palettes-of-colors/</loc>
     <lastmod>2018-01-08T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/about/</loc>
+    <loc>/about/</loc>
     <lastmod>2016-05-05T21:48:51-07:00</lastmod>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/categories/big-data/</loc>
+    <loc>/categories/bash/</loc>
+    <lastmod>2019-06-07T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/big-data/</loc>
     <lastmod>2018-05-31T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/categories/</loc>
-    <lastmod>2018-05-31T00:00:00+00:00</lastmod>
+    <loc>/categories/</loc>
+    <lastmod>2019-06-07T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/categories/computing/</loc>
+    <loc>/categories/computing/</loc>
     <lastmod>2018-11-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/categories/downscaling/</loc>
+    <loc>/categories/downscaling/</loc>
     <lastmod>2018-12-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/categories/graphics/</loc>
+    <loc>/categories/graphics/</loc>
     <lastmod>2018-01-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/categories/kriging/</loc>
+    <loc>/categories/kriging/</loc>
     <lastmod>2018-11-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/categories/package/</loc>
+    <loc>/categories/package/</loc>
     <lastmod>2018-05-31T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/post/</loc>
+    <loc>/post/</loc>
+    <lastmod>2019-06-07T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/r/</loc>
     <lastmod>2019-03-06T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/categories/r/</loc>
+    <loc>/</loc>
+    <lastmod>2019-06-07T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/spatial/</loc>
     <lastmod>2019-03-06T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/</loc>
-    <lastmod>2019-03-06T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://choisy.github.io/categories/spatial/</loc>
-    <lastmod>2019-03-06T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://choisy.github.io/categories/statistics/</loc>
+    <loc>/categories/statistics/</loc>
     <lastmod>2018-01-22T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/categories/system/</loc>
+    <loc>/categories/system/</loc>
     <lastmod>2018-05-14T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/tags/</loc>
+    <loc>/tags/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://choisy.github.io/categories/teaching/</loc>
+    <loc>/categories/teaching/</loc>
     <lastmod>2019-02-18T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
