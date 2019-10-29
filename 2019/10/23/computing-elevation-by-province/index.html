@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.54.0" />
+
+
+<title>Computing elevation by province - R recipes</title>
+<meta property="og:title" content="Computing elevation by province - R recipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">10 min read</span>
+    
+
+    <h1 class="article-title">Computing elevation by province</h1>
+
+    
+    <span class="article-date">2019/10/23</span>
+    
+
+    <div class="article-content">
+      
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>Here we show how to compute 2 different measures of elevation by province. The
+first one is the simple mean of the elevation measures inside the polygon of the
+province. The second one weights the mean by the local population density. For
+that, we use the polygons of the country and the provinces from
+<a href="https://gadm.org">GADM</a>, the SRTM raster elevation data from
+<a href="http://srtm.csi.cgiar.org">CGIAR</a> and raster population density data from
+<a href="https://www.worldpop.org">WorldPop</a>.</p>
+</div>
+<div id="packages" class="section level2">
+<h2>Packages</h2>
+<pre class="r"><code>library(sp)
+library(raster)</code></pre>
+</div>
+<div id="simple-mean" class="section level2">
+<h2>Simple mean</h2>
+<p>Let’s downlaod the elevation data (751.5 MB) from
+<a href="http://srtm.csi.cgiar.org">SRTM</a>:</p>
+<pre class="r"><code>download.file(&quot;http://srtm.csi.cgiar.org/wp-content/uploads/files/srtm_30x30/TIFF/N00E090.zip&quot;, &quot;srtm.zip&quot;)</code></pre>
+<p>Let’s unzip it (making a file of 2.4 GB):</p>
+<pre class="r"><code>unzip(&quot;srtm.zip&quot;)</code></pre>
+<p>And load it into R:</p>
+<pre class="r"><code>srtm &lt;- raster(&quot;cut_n00e090.tif&quot;)</code></pre>
+<p>which gives</p>
+<pre class="r"><code>srtm</code></pre>
+<pre><code>## class      : RasterLayer 
+## dimensions : 36023, 36023, 1297656529  (nrow, ncol, ncell)
+## resolution : 0.0008333334, 0.0008333334  (x, y)
+## extent     : 89.99042, 120.0096, -0.009583358, 30.00958  (xmin, xmax, ymin, ymax)
+## crs        : NA 
+## source     : /Users/choisy/Dropbox/aaa/www/blog/content/post/cut_n00e090.tif 
+## names      : cut_n00e090 
+## values     : -32768, 32767  (min, max)</code></pre>
+<p>Note that the CRS is not defined… However, from
+<a href="https://cgiarcsi.community/data/srtm-90m-digital-elevation-database-v4-1">here</a>
+we can see that <em>“The data is projected in a Geographic (Lat/Long) projection,
+with the WGS84 horizontal datum and the EGM96 vertical datum.”</em> Let’s thus
+define this projection:</p>
+<pre class="r"><code>crs(srtm) &lt;- CRS(&quot;+init=EPSG:4326&quot;)</code></pre>
+<p>Let’s check:</p>
+<pre class="r"><code>srtm</code></pre>
+<pre><code>## class      : RasterLayer 
+## dimensions : 36023, 36023, 1297656529  (nrow, ncol, ncell)
+## resolution : 0.0008333334, 0.0008333334  (x, y)
+## extent     : 89.99042, 120.0096, -0.009583358, 30.00958  (xmin, xmax, ymin, ymax)
+## crs        : +init=EPSG:4326 +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+## source     : /Users/choisy/Dropbox/aaa/www/blog/content/post/cut_n00e090.tif 
+## names      : cut_n00e090 
+## values     : -32768, 32767  (min, max)</code></pre>
+<p>We’re good! This file is quite big and we need the data only for Vietnam. We
+thus want to crop it. For that we need the polygon of Vietnam that we can
+download from <a href="https://gadm.org">GADM</a>:</p>
+<pre class="r"><code>download.file(&quot;https://biogeo.ucdavis.edu/data/gadm3.6/Rsp/gadm36_VNM_0_sp.rds&quot;, &quot;country.rds&quot;)</code></pre>
+<p>Lets load it:</p>
+<pre class="r"><code>country &lt;- readRDS(&quot;country.rds&quot;)</code></pre>
+<p>Which gives:</p>
+<pre class="r"><code>country</code></pre>
+<pre><code>## class       : SpatialPolygonsDataFrame 
+## features    : 1 
+## extent      : 102.1446, 109.4692, 8.381355, 23.39269  (xmin, xmax, ymin, ymax)
+## crs         : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+## variables   : 2
+## names       : GID_0,  NAME_0 
+## value       :   VNM, Vietnam</code></pre>
+<p>We can see that this time the CRS is correctly defined and that it is the same
+projection as for the SRTM raster file. Let’s plot the elevation data together
+with the country polygon:</p>
+<pre class="r"><code>plot(srtm)
+plot(country, add = TRUE)</code></pre>
+<p><img src="/post/2019-10-23-computing-elevation-by-province_files/figure-html/unnamed-chunk-16-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>Let’s now use the country polygon to crop the raster file. Note that this can be
+done only because the 2 objects have the same projection. If it were not the
+case, we would need to reproject one of them according to the projection of the
+other, using the <code>sp::spTranform()</code> function. It takes about 15’’.</p>
+<pre class="r"><code>srtm_cropped &lt;- crop(srtm, country)</code></pre>
+<p>Let’s write the output to disk:</p>
+<pre class="r"><code>writeRaster(srtm_cropped, &quot;srtm_cropped.tif&quot;)</code></pre>
+<p>Let’s reload it:</p>
+<pre class="r"><code>srtm_cropped &lt;- raster(&quot;srtm_cropped.tif&quot;)</code></pre>
+<p>Let’s see the result:</p>
+<pre class="r"><code>plot(srtm_cropped)
+plot(country, add = TRUE)</code></pre>
+<p><img src="/post/2019-10-23-computing-elevation-by-province_files/figure-html/unnamed-chunk-23-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>We can see that the cropped_version of the GeoTiff object is reduced from 2.4 GB
+down to 194.6 MB:</p>
+<pre class="r"><code>file.size(filename(srtm)) / 2^30</code></pre>
+<pre><code>## [1] 2.417611</code></pre>
+<p>and:</p>
+<pre class="r"><code>file.size(filename(srtm_cropped)) / 2^20</code></pre>
+<pre><code>## [1] 194.6239</code></pre>
+<p>Noticing that in this rectangular, we acutally need only a small portion of the
+pixels, we can go a step further in reducing the data by applying a mask. For
+that, we first need to create a mask by basically rasterizing the polygon using
+the same grid as the raster object. Note however that this step takes about 26’,
+essentially because the size of the polygon is big. Given that, we’ll see at the
+end of this section that this step is actually not necessary.</p>
+<pre class="r"><code>country_mask &lt;- rasterize(country, srtm_cropped)</code></pre>
+<p>Now that the mask is done, we can use it on the cropped raster:</p>
+<pre class="r"><code>srtm_masked &lt;- mask(srtm_cropped, country_mask)</code></pre>
+<p>Let’s save to disk and reload:</p>
+<pre class="r"><code>writeRaster(srtm_masked, &quot;srtm_masked.tif&quot;)
+srtm_masked &lt;- raster(&quot;srtm_masked.tif&quot;)</code></pre>
+<p>We can see that masking allows to reduce the file size from 195 MB to 86 MB:</p>
+<pre class="r"><code>file.size(filename(srtm_masked)) / 2^20</code></pre>
+<pre><code>## [1] 86.16997</code></pre>
+<p>Let’s see what it looks like:</p>
+<pre class="r"><code>plot(srtm_masked)
+plot(country, add = TRUE)</code></pre>
+<p><img src="/post/2019-10-23-computing-elevation-by-province_files/figure-html/unnamed-chunk-34-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>Great! Next step now, in order to compute a value of elevation per province, is
+to get the polygons of the provinces:</p>
+<pre class="r"><code>download.file(&quot;https://biogeo.ucdavis.edu/data/gadm3.6/Rsp/gadm36_VNM_1_sp.rds&quot;, &quot;provinces.rds&quot;)</code></pre>
+<p>Let’s load it:</p>
+<pre class="r"><code>provinces &lt;- readRDS(&quot;provinces.rds&quot;)</code></pre>
+<p>Which gives:</p>
+<pre class="r"><code>provinces</code></pre>
+<pre><code>## class       : SpatialPolygonsDataFrame 
+## features    : 63 
+## extent      : 102.1446, 109.4692, 8.381355, 23.39269  (xmin, xmax, ymin, ymax)
+## crs         : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+## variables   : 10
+## names       : GID_0,  NAME_0,   GID_1,   NAME_1, VARNAME_1, NL_NAME_1,     TYPE_1, ENGTYPE_1, CC_1, HASC_1 
+## min values  :   VNM, Vietnam, VNM.1_1, An Giang,  An Giang,        NA, Thành phố ,      City,   NA,  VN.AG 
+## max values  :   VNM, Vietnam, VNM.9_1,  Yên Bái,   Yen Bai,        NA,       Tỉnh,  Province,   NA,  VN.YB</code></pre>
+<p>We can again verify that the projection is the same as the raster and the
+country polygon. Let’s see what it looks like:</p>
+<pre class="r"><code>plot(provinces)</code></pre>
+<p><img src="/post/2019-10-23-computing-elevation-by-province_files/figure-html/unnamed-chunk-40-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>What we want to do now is, for each province, extracting the elevation data from
+the raster file that are inside the polygon of the province and average them.
+This is what the following function does:</p>
+<pre class="r"><code>mean_ele &lt;- function(x) {
+  require(magrittr)
+  prov &lt;- provinces[x, ]
+  rast &lt;- crop(srtm_masked, prov) # cropping before the mask
+  mask(rast, rasterize(prov, rast)) %&gt;% 
+    values() %&gt;% 
+    mean(na.rm = TRUE)
+}</code></pre>
+<p>Note interestingly that a crop before the mask speeds up the masking by 6.
+Interestingly too, this <code>mean_ele()</code> function is about twice as fast as the use
+of the <code>extract()</code> function. Compare for example</p>
+<pre class="r"><code>system.time(opt1 &lt;- sapply(1:3, mean_ele))</code></pre>
+<pre><code>##    user  system elapsed 
+##  37.431   0.508  39.234</code></pre>
+<p>with</p>
+<pre class="r"><code>system.time(opt2 &lt;- sapply(extract(srtm_masked, provinces[1:3, ]), mean, na.rm = TRUE))</code></pre>
+<pre><code>##    user  system elapsed 
+##  41.841   7.282  49.593</code></pre>
+<p>The reason for that is not clear to me. Maybe there are a number of checks in
+<code>extract()</code> function that substantially slow everything down. Let’s check that
+it provides the same results however:</p>
+<pre class="r"><code>opt1 - opt2</code></pre>
+<pre><code>## [1] 0 0 0</code></pre>
+<p>Let’s also see what is the benefit of working on <code>strm_masked</code> instead of
+<code>strm_cropped</code>:</p>
+<pre class="r"><code>mean_ele2 &lt;- function(x) {
+  require(magrittr)
+  prov &lt;- provinces[x, ]
+  rast &lt;- crop(srtm_cropped, prov)
+  mask(rast, rasterize(prov, rast)) %&gt;% 
+    values() %&gt;% 
+    mean(na.rm = TRUE)
+}
+system.time(opt3 &lt;- lapply(1:3, mean_ele2))</code></pre>
+<pre><code>##    user  system elapsed 
+##  26.341   0.263  27.171</code></pre>
+<p>So, it means that the only advantage of the <code>srtm_masked</code> over <code>srtm_cropped</code> is
+that it’s about twice as light on the disk but it doesn’t make the calculations
+based on these rasters any faster. Good to know! Let’s now compute this for all
+the provinces, which takes about 10’:</p>
+<pre class="r"><code>elevations1 &lt;- sapply(seq_along(provinces), mean_ele)</code></pre>
+</div>
+<div id="weighting-by-population-densities" class="section level2">
+<h2>Weighting by population densities</h2>
+<p>Now, let’s consider an alternative way of computing these elevations by province,
+weighting them by the local population density. We can retrieve the local
+population density for Vietnam as a raster file from
+<a href="http://www.worldpop.org">WorldPop</a>:</p>
+<pre class="r"><code>download.file(&quot;ftp://ftp.worldpop.org.uk/GIS/Population/Global_2000_2020/2010/VNM/vnm_ppp_2010.tif&quot;, &quot;worldpop.tif&quot;)</code></pre>
+<p>Let’s load it:</p>
+<pre class="r"><code>worldpop &lt;- raster(&quot;worldpop.tif&quot;)</code></pre>
+<p>Good news here is that the raster is already masked:</p>
+<pre class="r"><code>plot(worldpop)</code></pre>
+<p><img src="/post/2019-10-23-computing-elevation-by-province_files/figure-html/unnamed-chunk-51-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>It also has the same projection than the other objects we’ve been dealing with
+so far:</p>
+<pre class="r"><code>worldpop</code></pre>
+<pre><code>## class      : RasterLayer 
+## dimensions : 17796, 8789, 156409044  (nrow, ncol, ncell)
+## resolution : 0.0008333333, 0.0008333333  (x, y)
+## extent     : 102.1454, 109.4696, 8.562917, 23.39292  (xmin, xmax, ymin, ymax)
+## crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+## source     : /Users/choisy/Dropbox/aaa/www/blog/content/post/worldpop.tif 
+## names      : worldpop 
+## values     : 0.02010591, 568.1513  (min, max)</code></pre>
+<p>Of note too, it has the same resolution as <code>srtm_masked</code>, but not quite the same
+grid definition though:</p>
+<pre class="r"><code>srtm_masked</code></pre>
+<pre><code>## class      : RasterLayer 
+## dimensions : 18014, 8790, 158343060  (nrow, ncol, ncell)
+## resolution : 0.0008333334, 0.0008333334  (x, y)
+## extent     : 102.1446, 109.4696, 8.38125, 23.39292  (xmin, xmax, ymin, ymax)
+## crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+## source     : /Users/choisy/Dropbox/aaa/www/blog/content/post/srtm_masked.tif 
+## names      : srtm_masked 
+## values     : -129, 3106  (min, max)</code></pre>
+<p>In order to be able to weigth the elevation data from <code>srtm_masked</code> by the
+population density data from <code>worldpop</code> we need to ensure that the two rasters
+use the same grid. This implies resampling one of the raster on the grid of the
+other one. Let’s resample <code>srtm_masked</code> on <code>worldpop</code>. It takes about 2’:</p>
+<pre class="r"><code>srtm_masked2 &lt;- resample(srtm_masked, worldpop)</code></pre>
+<p>We can check that it worked:</p>
+<pre class="r"><code>worldpop</code></pre>
+<pre><code>## class      : RasterLayer 
+## dimensions : 17796, 8789, 156409044  (nrow, ncol, ncell)
+## resolution : 0.0008333333, 0.0008333333  (x, y)
+## extent     : 102.1454, 109.4696, 8.562917, 23.39292  (xmin, xmax, ymin, ymax)
+## crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+## source     : /Users/choisy/Dropbox/aaa/www/blog/content/post/worldpop.tif 
+## names      : worldpop 
+## values     : 0.02010591, 568.1513  (min, max)</code></pre>
+<p>and:</p>
+<pre class="r"><code>srtm_masked2</code></pre>
+<pre><code>## class      : RasterLayer 
+## dimensions : 17796, 8789, 156409044  (nrow, ncol, ncell)
+## resolution : 0.0008333333, 0.0008333333  (x, y)
+## extent     : 102.1454, 109.4696, 8.562917, 23.39292  (xmin, xmax, ymin, ymax)
+## crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+## source     : /private/var/folders/0z/99v2vkd57yd4h_wwxbzqm2lm0000gn/T/RtmpKLImwn/raster/r_tmp_2019-10-24_182415_9898_99280.grd 
+## names      : srtm_masked 
+## values     : -128.7624, 3105.94  (min, max)</code></pre>
+<p>Below is a new version of the <code>mean_ele()</code> function that performs the population
+weighting:</p>
+<pre class="r"><code>mean_ele3 &lt;- function(x) {
+  prov &lt;- provinces[x, ]
+  srtm &lt;- crop(srtm_masked2, prov)
+  wpop &lt;- crop(worldpop, prov)
+  prov_mask &lt;- rasterize(prov, srtm)
+  srtm_val &lt;- values(mask(srtm, prov_mask))
+  wpop_val &lt;- values(mask(wpop, prov_mask))
+  weights &lt;- wpop_val / sum(wpop_val, na.rm = TRUE)
+  sum(weights * srtm_val, na.rm = TRUE)
+}</code></pre>
+<p>Let’s apply it to all the provinces, it takes about 16’:</p>
+<pre class="r"><code>elevations2 &lt;- sapply(seq_along(provinces), mean_ele3)</code></pre>
+<p>Let’s compare the 2 measures of elevation by province:</p>
+<pre class="r"><code>(elevations &lt;- data.frame(province = provinces$VARNAME_1, elevations1, elevations2))</code></pre>
+<pre><code>##             province elevations1 elevations2
+## 1           An Giang    8.898235    6.408292
+## 2           Bac Lieu    1.695055    1.881781
+## 3          Bac Giang  106.352667   29.775390
+## 4            Bac Kan  490.829030  394.819273
+## 5           Bac Ninh    6.222558    7.070005
+## 6            Ben Tre    2.076570    2.810856
+## 7  Ba Ria - Vung Tau   58.798530   30.709794
+## 8          Binh Dinh  264.440442   51.091846
+## 9         Binh Duong   38.621079   25.638468
+## 10        Binh Phuoc  176.327987  145.018136
+## 11        Binh Thuan  217.787158   72.584621
+## 12           Can Tho    2.663051    3.144337
+## 13            Ca Mau    2.131124    2.131788
+## 14          Cao Bang  617.552520  514.365906
+## 15           Dak Lak  502.929377  494.978901
+## 16          Dak Nong  635.457842  597.524631
+## 17          Dong Nai  102.931787   71.755471
+## 18         Dong Thap    3.443112    4.442910
+## 19           Da Nang  276.254180   26.729688
+## 20         Dien Bien  898.531873  734.174963
+## 21           Gia Lai  526.389724  505.270508
+## 22         Hai Duong   10.678064    5.502737
+## 23         Hai Phong   13.913417    5.799682
+## 24         Hau Giang    1.672961    1.840450
+## 25       Ho Chi Minh    5.020083    6.362934
+## 26          Ha Giang  718.742222  639.124498
+## 27            Ha Noi   25.105430   12.541751
+## 28            Ha Nam   21.396139   10.562716
+## 29           Ha Tinh  173.831383   35.958710
+## 30          Hoa Binh  315.397034  174.539607
+## 31          Hung Yen    5.293893    5.748083
+## 32         Khanh Hoa  381.844209   68.901831
+## 33        Kien Giang   10.164205    6.650253
+## 34           Kon Tum  887.268424  693.869140
+## 35          Lang Son  349.812444  285.813686
+## 36          Lai Chau 1000.487861  804.993577
+## 37          Lam Dong  911.213147  944.541232
+## 38           Lao Cai  828.443694  506.560942
+## 39           Long An    2.094010    2.222340
+## 40          Nam Dinh    2.727538    3.115513
+## 41           Nghe An  393.868204   81.151246
+## 42         Ninh Binh   49.014519   13.659144
+## 43        Ninh Thuan  354.701355   70.047739
+## 44           Phu Tho  146.158709   55.094982
+## 45           Phu Yen  258.861542   68.853622
+## 46        Quang Binh  287.294469   75.554779
+## 47         Quang Nam  464.724461   84.292007
+## 48        Quang Ngai  283.743576   56.648166
+## 49        Quang Ninh  168.250187   52.426892
+## 50         Quang Tri  256.356000   82.139390
+## 51         Soc Trang    1.734239    2.184876
+## 52            Son La  828.559643  680.606294
+## 53          Tay Ninh   23.078405   16.178220
+## 54    Thua Thien Hue  301.140207   51.183379
+## 55         Thai Binh    2.502572    2.757502
+## 56       Thai Nguyen  162.562823   68.150190
+## 57         Thanh Hoa  255.976636   51.144353
+## 58        Tien Giang    2.361345    2.928570
+## 59          Tra Vinh    2.026229    2.653617
+## 60       Tuyen Quang  284.681424  133.301032
+## 61         Vinh Long    1.778635    2.182872
+## 62         Vinh Phuc   96.040181   28.194070
+## 63           Yen Bai  666.156834  314.113652</code></pre>
+<p>Let’s visualize this:</p>
+<pre class="r"><code>plot(elevations2 ~ elevations1, elevations, xlab = &quot;weighted by population density&quot;, ylab = &quot;non weighted&quot;, col = &quot;blue&quot;)
+abline(0, 1)</code></pre>
+<p><img src="/post/2019-10-23-computing-elevation-by-province_files/figure-html/unnamed-chunk-60-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>This figure shows clearly that the population tends to gather in the lower parts
+of the province.</p>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

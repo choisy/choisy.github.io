@@ -6,10 +6,20 @@
     <description>Recent content in Computing on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 08 Nov 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 28 Oct 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/computing/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Computing land cover by province</title>
+      <link>/2019/10/28/computing-land-cover-by-province/</link>
+      <pubDate>Mon, 28 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/10/28/computing-land-cover-by-province/</guid>
+      <description>Introduction  Packages library(sp) library(raster) library(magrittr)  Simple mean globcov &amp;lt;- globcoverVN::getgcvn() which gives
+globcov ## class : RasterLayer ## dimensions : 5339, 2636, 14073604 (nrow, ncol, ncell) ## resolution : 0.002777778, 0.002777778 (x, y) ## extent : 102.1458, 109.4681, 8.5625, 23.39306 (xmin, xmax, ymin, ymax) ## crs : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 ## source : /Library/Frameworks/R.framework/Versions/3.6/Resources/library/globcoverVN/extdata/globcoverVN.tif ## names : globcoverVN ## values : 11, 220 (min, max) WGS84 unprojected data.</description>
+    </item>
     
     <item>
       <title>Computing weather variables by province</title>

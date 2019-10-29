@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.54.0" />
+
+
+<title>Computing land cover by province - R recipes</title>
+<meta property="og:title" content="Computing land cover by province - R recipes">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/R-logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/choisy">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/choisy_marc">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">6 min read</span>
+    
+
+    <h1 class="article-title">Computing land cover by province</h1>
+
+    
+    <span class="article-date">2019/10/28</span>
+    
+
+    <div class="article-content">
+      
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+</div>
+<div id="packages" class="section level2">
+<h2>Packages</h2>
+<pre class="r"><code>library(sp)
+library(raster)
+library(magrittr)</code></pre>
+</div>
+<div id="simple-mean" class="section level2">
+<h2>Simple mean</h2>
+<pre class="r"><code>globcov &lt;- globcoverVN::getgcvn()</code></pre>
+<p>which gives</p>
+<pre class="r"><code>globcov</code></pre>
+<pre><code>## class      : RasterLayer 
+## dimensions : 5339, 2636, 14073604  (nrow, ncol, ncell)
+## resolution : 0.002777778, 0.002777778  (x, y)
+## extent     : 102.1458, 109.4681, 8.5625, 23.39306  (xmin, xmax, ymin, ymax)
+## crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+## source     : /Library/Frameworks/R.framework/Versions/3.6/Resources/library/globcoverVN/extdata/globcoverVN.tif 
+## names      : globcoverVN 
+## values     : 11, 220  (min, max)</code></pre>
+<p>WGS84 unprojected data.</p>
+<pre class="r"><code>plot(globcov)</code></pre>
+<p><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-4-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>Note that we can get access to the legend this way:</p>
+<pre class="r"><code>globcov@legend</code></pre>
+<pre><code>## An object of class &quot;.RasterLegend&quot;
+## Slot &quot;type&quot;:
+## character(0)
+## 
+## Slot &quot;values&quot;:
+##  [1]  11  14  20  30  40  50  60  70 100 110 120 130 140 150 160 170 190
+## [18] 200 210 220
+## 
+## Slot &quot;color&quot;:
+##        V1        V2        V3        V4        V5        V6        V7 
+## &quot;#AAF0F0&quot; &quot;#FFFF64&quot; &quot;#DCF064&quot; &quot;#CDCD66&quot; &quot;#006400&quot; &quot;#00A000&quot; &quot;#AAC800&quot; 
+##        V8       V10       V11       V12       V13       V14       V15 
+## &quot;#003C00&quot; &quot;#788200&quot; &quot;#8CA000&quot; &quot;#BE9600&quot; &quot;#966400&quot; &quot;#FFB432&quot; &quot;#FFEBAF&quot; 
+##       V16       V17       V19       V20       V21       V22 
+## &quot;#00785A&quot; &quot;#009678&quot; &quot;#C31400&quot; &quot;#FFF5D7&quot; &quot;#0046C8&quot; &quot;#FFFFFF&quot; 
+## 
+## Slot &quot;names&quot;:
+##  [1] &quot;Post-flooding or irrigated croplands (or aquatic)&quot;                                                                     
+##  [2] &quot;Rainfed croplands&quot;                                                                                                     
+##  [3] &quot;Mosaic cropland (50-70%) / vegetation (grassland/shrubland/forest) (20-50%)&quot;                                           
+##  [4] &quot;Mosaic vegetation (grassland/shrubland/forest) (50-70%) / cropland (20-50%)&quot;                                           
+##  [5] &quot;Closed to open (&gt;15%) broadleaved evergreen or semi-deciduous forest (&gt;5m)&quot;                                            
+##  [6] &quot;Closed (&gt;40%) broadleaved deciduous forest (&gt;5m)&quot;                                                                      
+##  [7] &quot;Open (15-40%) broadleaved deciduous forest/woodland (&gt;5m)&quot;                                                             
+##  [8] &quot;Closed (&gt;40%) needleleaved evergreen forest (&gt;5m)&quot;                                                                     
+##  [9] &quot;Closed to open (&gt;15%) mixed broadleaved and needleleaved forest (&gt;5m)&quot;                                                 
+## [10] &quot;Mosaic forest or shrubland (50-70%) / grassland (20-50%)&quot;                                                              
+## [11] &quot;Mosaic grassland (50-70%) / forest or shrubland (20-50%)&quot;                                                              
+## [12] &quot;Closed to open (&gt;15%) (broadleaved or needleleaved, evergreen or deciduous) shrubland (&lt;5m)&quot;                           
+## [13] &quot;Closed to open (&gt;15%) herbaceous vegetation (grassland, savannas or lichens/mosses)&quot;                                   
+## [14] &quot;Sparse (&lt;15%) vegetation&quot;                                                                                              
+## [15] &quot;Closed to open (&gt;15%) broadleaved forest regularly flooded (semi-permanently or temporarily) - Fresh or brackish water&quot;
+## [16] &quot;Closed (&gt;40%) broadleaved forest or shrubland permanently flooded - Saline or brackish water&quot;                          
+## [17] &quot;Artificial surfaces and associated areas (Urban areas &gt;50%)&quot;                                                           
+## [18] &quot;Bare areas&quot;                                                                                                            
+## [19] &quot;Water bodies&quot;                                                                                                          
+## [20] &quot;Permanent snow and ice&quot;                                                                                                
+## 
+## Slot &quot;colortable&quot;:
+## logical(0)</code></pre>
+<p>Next step now, in order to compute values of land cover per province, is to get
+the polygons of the provinces from <a href="https://gadm.org">GADM</a>:</p>
+<pre class="r"><code>download.file(&quot;https://biogeo.ucdavis.edu/data/gadm3.6/Rsp/gadm36_VNM_1_sp.rds&quot;, &quot;provinces.rds&quot;)</code></pre>
+<p>Let’s load it:</p>
+<pre class="r"><code>provinces &lt;- readRDS(&quot;provinces.rds&quot;)</code></pre>
+<p>Which gives:</p>
+<pre class="r"><code>provinces</code></pre>
+<pre><code>## class       : SpatialPolygonsDataFrame 
+## features    : 63 
+## extent      : 102.1446, 109.4692, 8.381355, 23.39269  (xmin, xmax, ymin, ymax)
+## crs         : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+## variables   : 10
+## names       : GID_0,  NAME_0,   GID_1,   NAME_1, VARNAME_1, NL_NAME_1,     TYPE_1, ENGTYPE_1, CC_1, HASC_1 
+## min values  :   VNM, Vietnam, VNM.1_1, An Giang,  An Giang,        NA, Thành phố ,      City,   NA,  VN.AG 
+## max values  :   VNM, Vietnam, VNM.9_1,  Yên Bái,   Yen Bai,        NA,       Tỉnh,  Province,   NA,  VN.YB</code></pre>
+<p>Note that the projection is the same as the raster. Let’s see what it looks
+like:</p>
+<pre class="r"><code>plot(globcov)
+plot(provinces, add = TRUE)</code></pre>
+<p><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-11-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>What we want to do now is, for each province, extracting the land cover data
+from the raster file that are inside the polygon of the province and then
+compute proportions. This is what the following function does:</p>
+<pre class="r"><code>proportion_lc &lt;- function(x) {
+  require(magrittr)
+  prov &lt;- provinces[x, ]
+  rast &lt;- crop(globcov, prov) # cropping before the mask
+  mask(rast, rasterize(prov, rast)) %&gt;% 
+    values() %&gt;% 
+    na.exclude() %&gt;% 
+    table() %&gt;% 
+    {100 * . / sum(.)}
+}</code></pre>
+<p>Note interestingly that, as noted <a href="">here</a>,</p>
+<ul>
+<li>a crop before the mask speeds up the masking by 6 and</li>
+<li>this <code>proportion_lc()</code> function is about twice as fast as the use of the
+<code>extract()</code> function.</li>
+</ul>
+<p>Let’s now compute this for all the provinces, which takes about 2’:</p>
+<pre class="r"><code>land_cover1 &lt;- provinces %&gt;%
+  seq_along() %&gt;%
+  lapply(proportion_lc) %&gt;% 
+  setNames(provinces@data$VARNAME_1) %&gt;% 
+  c(., list(.id = &quot;province&quot;)) %&gt;%
+  do.call(dplyr::bind_rows, .) %&gt;% 
+  tidyr::replace_na(., as.list(setNames(rep(0, ncol(.)), names(.))))</code></pre>
+</div>
+<div id="weighting-by-population-densities" class="section level2">
+<h2>Weighting by population densities</h2>
+<p>Now, let’s consider an alternative way of computing these propotions of land
+cover by province, weighting them by the local population density. We can
+retrieve the local population density for Vietnam as a raster file from
+<a href="http://www.worldpop.org">WorldPop</a>:</p>
+<pre class="r"><code>download.file(&quot;ftp://ftp.worldpop.org.uk/GIS/Population/Global_2000_2020/2010/VNM/vnm_ppp_2010.tif&quot;, &quot;worldpop.tif&quot;)</code></pre>
+<p>Let’s load it:</p>
+<pre class="r"><code>worldpop &lt;- raster(&quot;worldpop.tif&quot;)</code></pre>
+<p>It gives:</p>
+<pre class="r"><code>plot(worldpop)
+plot(provinces, add = TRUE)</code></pre>
+<p><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-18-1.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>It also has the same projection than the other objects we’ve been dealing with
+so far:</p>
+<pre class="r"><code>worldpop</code></pre>
+<pre><code>## class      : RasterLayer 
+## dimensions : 17796, 8789, 156409044  (nrow, ncol, ncell)
+## resolution : 0.0008333333, 0.0008333333  (x, y)
+## extent     : 102.1454, 109.4696, 8.562917, 23.39292  (xmin, xmax, ymin, ymax)
+## crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+## source     : /Users/choisy/Dropbox/aaa/www/blog/content/post/worldpop.tif 
+## names      : worldpop 
+## values     : 0.02010591, 568.1513  (min, max)</code></pre>
+<p>However, it does not have the same resolution as <code>globcov</code>: there are about 10
+times more pixels in <code>worldpop</code> than in <code>globcov</code>. Let’s thus resample
+<code>worldpop</code> on <code>globcov</code> (takes about 2’):</p>
+<pre class="r"><code>worldpop2 &lt;- resample(worldpop, globcov)</code></pre>
+<p>We can check that it worked:</p>
+<pre class="r"><code>worldpop2</code></pre>
+<pre><code>## class      : RasterLayer 
+## dimensions : 5339, 2636, 14073604  (nrow, ncol, ncell)
+## resolution : 0.002777778, 0.002777778  (x, y)
+## extent     : 102.1458, 109.4681, 8.5625, 23.39306  (xmin, xmax, ymin, ymax)
+## crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+## source     : memory
+## names      : worldpop 
+## values     : 0.02054448, 558.3397  (min, max)</code></pre>
+<p>and:</p>
+<pre class="r"><code>globcov</code></pre>
+<pre><code>## class      : RasterLayer 
+## dimensions : 5339, 2636, 14073604  (nrow, ncol, ncell)
+## resolution : 0.002777778, 0.002777778  (x, y)
+## extent     : 102.1458, 109.4681, 8.5625, 23.39306  (xmin, xmax, ymin, ymax)
+## crs        : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 
+## source     : /Library/Frameworks/R.framework/Versions/3.6/Resources/library/globcoverVN/extdata/globcoverVN.tif 
+## names      : globcoverVN 
+## values     : 11, 220  (min, max)</code></pre>
+<p>Below is a new version of the <code>proportion_lc()</code> function that performs the
+population weighting:</p>
+<pre class="r"><code>proportion_lc2 &lt;- function(x) {
+  require(magrittr)
+  prov &lt;- provinces[x, ]
+  glcv &lt;- crop(globcov, prov)
+  wpop &lt;- crop(worldpop2, prov)
+  prov_mask &lt;- rasterize(prov, glcv)
+  glvc_val &lt;- values(mask(glcv, prov_mask))
+  wpop_val &lt;- values(mask(wpop, prov_mask))
+  weights &lt;- wpop_val / sum(wpop_val, na.rm = TRUE)
+  data.frame(glvc_val, weights) %&gt;% 
+    na.exclude() %&gt;%
+    dplyr::group_by(glvc_val) %&gt;%
+    dplyr::summarize(val = sum(weights)) %$%
+    setNames(val, glvc_val) %&gt;%
+    {100 * . / sum(.)}
+}</code></pre>
+<p>Let’s apply it to all the provinces, it takes about 2’:</p>
+<pre class="r"><code>land_cover2 &lt;- provinces %&gt;%
+  seq_along() %&gt;%
+  lapply(proportion_lc2) %&gt;% 
+  setNames(provinces@data$VARNAME_1) %&gt;% 
+  c(., list(.id = &quot;province&quot;)) %&gt;%
+  do.call(dplyr::bind_rows, .) %&gt;% 
+  tidyr::replace_na(., as.list(setNames(rep(0, ncol(.)), names(.))))</code></pre>
+<p>Let’s compare the 2 measures of land cover by province:</p>
+<pre class="r"><code>for (i in 2:ncol(land_cover1)) {
+  x &lt;- unlist(land_cover1[, i])
+  y &lt;- unlist(land_cover2[, i])
+  xylim &lt;- range(c(x, y))
+  plot(y, x, xlim = xylim, ylim = xylim,
+       xlab = &quot;weighted by population density&quot;,
+       ylab = &quot;non weighted&quot;, col = &quot;blue&quot;,
+       main = globcov@legend@names[i - 1], cex.main = .5)
+  abline(0, 1)
+}</code></pre>
+<p><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-1.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-2.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-3.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-4.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-5.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-6.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-7.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-8.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-9.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-10.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-11.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-12.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-13.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-14.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-15.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-16.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-17.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-18.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-19.png" width="407.736" style="display: block; margin: auto;" /><img src="/post/2019-10-28-computing-land-cover-by-province_files/figure-html/unnamed-chunk-25-20.png" width="407.736" style="display: block; margin: auto;" /></p>
+<p>This figure shows clearly that the population tends to gather in the lower parts
+of the province.</p>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

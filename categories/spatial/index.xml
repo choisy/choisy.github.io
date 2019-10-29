@@ -6,10 +6,29 @@
     <description>Recent content in Spatial on R recipes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 06 Mar 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 28 Oct 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/spatial/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Computing land cover by province</title>
+      <link>/2019/10/28/computing-land-cover-by-province/</link>
+      <pubDate>Mon, 28 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/10/28/computing-land-cover-by-province/</guid>
+      <description>Introduction  Packages library(sp) library(raster) library(magrittr)  Simple mean globcov &amp;lt;- globcoverVN::getgcvn() which gives
+globcov ## class : RasterLayer ## dimensions : 5339, 2636, 14073604 (nrow, ncol, ncell) ## resolution : 0.002777778, 0.002777778 (x, y) ## extent : 102.1458, 109.4681, 8.5625, 23.39306 (xmin, xmax, ymin, ymax) ## crs : +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0 ## source : /Library/Frameworks/R.framework/Versions/3.6/Resources/library/globcoverVN/extdata/globcoverVN.tif ## names : globcoverVN ## values : 11, 220 (min, max) WGS84 unprojected data.</description>
+    </item>
+    
+    <item>
+      <title>Computing elevation by province</title>
+      <link>/2019/10/23/computing-elevation-by-province/</link>
+      <pubDate>Wed, 23 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/10/23/computing-elevation-by-province/</guid>
+      <description>Introduction Here we show how to compute 2 different measures of elevation by province. The first one is the simple mean of the elevation measures inside the polygon of the province. The second one weights the mean by the local population density. For that, we use the polygons of the country and the provinces from GADM, the SRTM raster elevation data from CGIAR and raster population density data from WorldPop.</description>
+    </item>
     
     <item>
       <title>Lengths of latitude and longitude degrees</title>
